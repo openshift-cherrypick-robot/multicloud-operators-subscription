@@ -43,7 +43,7 @@ x509: certificate is valid for localhost.com, not localhost
 
 ```
 apiVersion: apps.open-cluster-management.io/v1
-ind: Channel
+kind: Channel
 metadata:
 labels:
   name: sample-channel
