@@ -49,7 +49,7 @@ labels:
   name: sample-channel
   namespace: sample
 spec:
-  type: GitHub
+  type: Git
   pathname: <Git URL>
   insecureSkipVerify: true
 ```
