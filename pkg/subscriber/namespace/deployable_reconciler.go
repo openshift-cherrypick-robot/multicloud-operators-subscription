@@ -245,6 +245,9 @@ func (r *DeployableReconciler) doSubscribeDeployable(subitem *NsSubscriberItem, 
 		return nil, nil, errors.Wrapf(err, "processing local deployable %v", dpl.Name)
 	}
 
+	// TO_DO: inject Namespace subcription subitem.Subscription metadata:labels: `app: <app name>` to the dpl.spec.Template
+	// (P2 )For now only appsub object is deployed by the NS subscription. the app label has already been stamped in hub appsub
+
 	//if the deployable namespace is not defined, set it to the subscription namespace
 	if template.GetNamespace() == "" {
 		template.SetNamespace(subitem.Subscription.GetNamespace())

@@ -350,6 +350,9 @@ func CreateHelmCRDeployable(
 	dpl.Spec.Template = &runtime.RawExtension{}
 	dpl.Spec.Template.Raw, err = json.Marshal(helmRelease)
 
+	// TO_DO: inject helm sub metadata:labels: `app: <app name>`  to the dpl.spec.Template  (helmrelease object)
+	// may need Mike help to propagate the app lable to the all the resources deployed by the helmrelease
+
 	if err != nil {
 		klog.Error("Failed to mashall helm release", helmRelease)
 		return nil, err

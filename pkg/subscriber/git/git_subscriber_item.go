@@ -541,6 +541,8 @@ func (ghsi *SubscriberItem) subscribeResource(file []byte) (*dplv1.Deployable, *
 	dpl.Spec.Template = &runtime.RawExtension{}
 	dpl.Spec.Template.Raw, err = json.Marshal(rsc)
 
+	// TO_DO: inject git subcription ghsi.Subscription metadata:labels: `app: <app name>` to the dpl.spec.Template
+
 	if err != nil {
 		klog.Error(err, "Failed to mashall the resource", rsc)
 		return nil, nil, err

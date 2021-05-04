@@ -227,6 +227,8 @@ func (obsi *SubscriberItem) doSubscription() error {
 		dpl.SetAnnotations(verionAnno)
 		err = yaml.Unmarshal(tplb.Content, dpl.Spec.Template)
 
+		// TO_DO: inject ojbect bucket subcription obsi.Subscription metadata:labels: `app: <app name>` to the dpl.spec.Template
+
 		if err != nil {
 			klog.Error("Failed to unmashall ", obsi.bucket, "/", key, " err:", err)
 			continue
