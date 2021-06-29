@@ -61,14 +61,14 @@ func (r *ReconcileSubscription) UpdateGitDeployablesAnnotation(sub *appv1.Subscr
 	origsub := &appv1.Subscription{}
 	sub.DeepCopyInto(origsub)
 
-	channel, err := r.getChannel(sub)
+	primaryChannel, secondaryChannel, err := r.getChannel(sub)
 
 	if err != nil {
 		klog.Errorf("Failed to find a channel for subscription: %s", sub.GetName())
 		return false, err
 	}
 
-	if utils.IsGitChannel(string(channel.Spec.Type)) {
+	if utils.IsGitChannel(string(primaryChannel.Spec.Type)) {
 		klog.Infof("Subscription %s has Git type channel.", sub.GetName())
 
 		//making sure the commit id is coming from the same source
@@ -103,9 +103,9 @@ func (r *ReconcileSubscription) UpdateGitDeployablesAnnotation(sub *appv1.Subscr
 			r.deleteSubscriptionDeployables(sub)
 
 			baseDir := r.hubGitOps.GetRepoRootDirctory(sub)
-			resourcePath := getResourcePath(r.hubGitOps.ResolveLocalGitFolder, channel, sub)
+			resourcePath := getResourcePath(r.hubGitOps.ResolveLocalGitFolder, primaryChannel, sub)
 
-			err = r.processRepo(channel, sub, r.hubGitOps.ResolveLocalGitFolder(channel, sub), resourcePath, baseDir)
+			err = r.processRepo(channel, sub, r.hubGitOps.ResolveLocalGitFolder(primaryChannel, sub), resourcePath, baseDir)
 
 			if err != nil {
 				klog.Error(err.Error())

@@ -78,6 +78,8 @@ type KubeResource struct {
 }
 
 type GitCloneOption struct {
+	PrimaryChannel     chnv1.Channel
+	SecondaryChannel   chnv1.Channel
 	RepoURL            string
 	CommitHash         string
 	RevisionTag        string
@@ -156,7 +158,7 @@ func getCertChain(certs string) tls.Certificate {
 // CloneGitRepo clones a GitHub repository
 func CloneGitRepo(cloneOptions *GitCloneOption) (commitID string, err error) {
 	options := &git.CloneOptions{
-		URL:               cloneOptions.RepoURL,
+		URL:               cloneOptions.PrimaryChannel.Spec.Pathname,
 		SingleBranch:      true,
 		RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
 		ReferenceName:     cloneOptions.Branch,

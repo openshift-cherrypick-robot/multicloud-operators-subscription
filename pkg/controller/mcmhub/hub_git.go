@@ -355,14 +355,14 @@ func (h *HubGitOps) RegisterBranch(subIns *subv1.Subscription) error {
 	//	return
 	//}
 
-	channel, err := GetSubscriptionRefChannel(h.clt, subIns)
+	primaryChannel, secondaryChannel, err := GetSubscriptionRefChannel(h.clt, subIns)
 
 	if err != nil {
 		h.logger.Error(err, "failed to register subscription to GitOps")
 		return err
 	}
 
-	if !isGitChannel(channel) {
+	if !isGitChannel(primaryChannel) {
 		return nil
 	}
 
