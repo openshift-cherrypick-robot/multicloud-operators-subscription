@@ -705,6 +705,8 @@ func (ghsi *SubscriberItem) cloneGitRepo() (commitID string, err error) {
 		}
 	}
 
+	ghsi.repoRoot = utils.GetLocalGitFolder(ghsi.Subscription)
+
 	cloneOptions := &utils.GitCloneOption{
 		CommitHash:  ghsi.desiredCommit,
 		RevisionTag: ghsi.desiredTag,
@@ -712,8 +714,6 @@ func (ghsi *SubscriberItem) cloneGitRepo() (commitID string, err error) {
 		Branch:      utils.GetSubscriptionBranch(ghsi.Subscription),
 		DestDir:     ghsi.repoRoot,
 	}
-
-	ghsi.repoRoot = utils.GetLocalGitFolder(ghsi.Subscription)
 
 	// Get the primary channel connection options
 	primaryChannelConnectionConfig, err := utils.GetChannelConnectionConfig(ghsi.ChannelSecret, ghsi.ChannelConfigMap)

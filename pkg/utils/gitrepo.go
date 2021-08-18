@@ -568,6 +568,8 @@ func GetSubscriptionBranchRef(b string) plumbing.ReferenceName {
 }
 
 func GetChannelConnectionConfig(secret *corev1.Secret, configmap *corev1.ConfigMap) (connCfg *ChannelConnectionCfg, err error) {
+	connCfg = &ChannelConnectionCfg{}
+
 	if secret != nil {
 		user, token, sshKey, passphrase, err := ParseChannelSecret(secret)
 
