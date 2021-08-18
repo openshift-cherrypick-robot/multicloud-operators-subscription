@@ -277,7 +277,7 @@ func getGitChart(sub *appv1.Subscription, localRepoRoot, subPath string) (*repo.
 }
 
 func (r *ReconcileSubscription) gitHelmResourceString(sub *appv1.Subscription, chn *chnv1.Channel) string {
-	idxFile, err := getGitChart(sub, utils.GetLocalGitFolder(chn, sub), getResourcePath(r.hubGitOps.ResolveLocalGitFolder, chn, sub))
+	idxFile, err := getGitChart(sub, utils.GetLocalGitFolder(sub), getResourcePath(r.hubGitOps.ResolveLocalGitFolder, chn, sub))
 	if err != nil {
 		klog.Error(err.Error())
 		return ""
