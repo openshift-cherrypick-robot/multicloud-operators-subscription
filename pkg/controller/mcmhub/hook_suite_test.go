@@ -24,7 +24,6 @@ import (
 
 	ansiblejob "github.com/open-cluster-management/ansiblejob-go-lib/api/v1alpha1"
 	spokeClusterV1 "github.com/open-cluster-management/api/cluster/v1"
-	chnv1 "github.com/open-cluster-management/multicloud-operators-channel/pkg/apis/apps/v1"
 	"github.com/open-cluster-management/multicloud-operators-subscription/pkg/apis"
 	subv1 "github.com/open-cluster-management/multicloud-operators-subscription/pkg/apis/apps/v1"
 	"github.com/open-cluster-management/multicloud-operators-subscription/pkg/utils"
@@ -76,15 +75,11 @@ var _ = BeforeSuite(func(done Done) {
 	k8sManager, err = mgr.New(cfg, mgr.Options{MetricsBindAddress: "0"})
 	Expect(err).ToNot(HaveOccurred())
 
-	cFunc := func(repo, branch, user, pwd string) (string, error) {
-		return defaultCommit, nil
-	}
-
 	cloneFunc := func(*utils.GitCloneOption) (string, error) {
 		return defaultCommit, nil
 	}
 
-	localRepoDidr := func(*chnv1.Channel, *subv1.Subscription) string {
+	localRepoDidr := func(*subv1.Subscription) string {
 		return testGitPath
 	}
 
@@ -92,7 +87,6 @@ var _ = BeforeSuite(func(done Done) {
 
 	gitOps = NewHookGit(k8sManager.GetClient(), setHubGitOpsLogger(tlog.NullLogger{}),
 		setHubGitOpsInterval(hookRequeueInterval*1),
-		setGetCommitFunc(cFunc),
 		setGetCloneFunc(cloneFunc),
 		setLocalDirResovler(localRepoDidr),
 	)

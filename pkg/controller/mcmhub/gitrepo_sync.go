@@ -61,7 +61,7 @@ func (r *ReconcileSubscription) UpdateGitDeployablesAnnotation(sub *appv1.Subscr
 	origsub := &appv1.Subscription{}
 	sub.DeepCopyInto(origsub)
 
-	primaryChannel, secondaryChannel, err := r.getChannel(sub)
+	primaryChannel, _, err := r.getChannel(sub)
 
 	if err != nil {
 		klog.Errorf("Failed to find a channel for subscription: %s", sub.GetName())
@@ -105,7 +105,7 @@ func (r *ReconcileSubscription) UpdateGitDeployablesAnnotation(sub *appv1.Subscr
 			baseDir := r.hubGitOps.GetRepoRootDirctory(sub)
 			resourcePath := getResourcePath(r.hubGitOps.ResolveLocalGitFolder, primaryChannel, sub)
 
-			err = r.processRepo(channel, sub, r.hubGitOps.ResolveLocalGitFolder(primaryChannel, sub), resourcePath, baseDir)
+			err = r.processRepo(primaryChannel, sub, r.hubGitOps.ResolveLocalGitFolder(sub), resourcePath, baseDir)
 
 			if err != nil {
 				klog.Error(err.Error())
@@ -243,14 +243,14 @@ func (r *ReconcileSubscription) AddClusterAdminAnnotation(sub *appv1.Subscriptio
 	return false
 }
 
-func getResourcePath(localFolderFunc func(*chnv1.Channel, *appv1.Subscription) string, chn *chnv1.Channel, sub *appv1.Subscription) string {
-	resourcePath := localFolderFunc(chn, sub)
+func getResourcePath(localFolderFunc func(*appv1.Subscription) string, chn *chnv1.Channel, sub *appv1.Subscription) string {
+	resourcePath := localFolderFunc(sub)
 
 	annotations := sub.GetAnnotations()
 	if annotations[appv1.AnnotationGithubPath] != "" {
-		resourcePath = filepath.Join(localFolderFunc(chn, sub), annotations[appv1.AnnotationGithubPath])
+		resourcePath = filepath.Join(localFolderFunc(sub), annotations[appv1.AnnotationGithubPath])
 	} else if annotations[appv1.AnnotationGitPath] != "" {
-		resourcePath = filepath.Join(localFolderFunc(chn, sub), annotations[appv1.AnnotationGitPath])
+		resourcePath = filepath.Join(localFolderFunc(sub), annotations[appv1.AnnotationGitPath])
 	}
 
 	return resourcePath
@@ -339,7 +339,7 @@ func (r *ReconcileSubscription) updateAnnotationTopo(sub *subv1.Subscription, al
 		return gerr.Wrap(err, "failed to parse deployable template")
 	}
 
-	chn, err := r.getChannel(sub)
+	primaryChannel, _, err := r.getChannel(sub)
 	if err != nil {
 		return gerr.Wrap(err, "fail to get channel info")
 	}
@@ -349,7 +349,7 @@ func (r *ReconcileSubscription) updateAnnotationTopo(sub *subv1.Subscription, al
 		subanno = make(map[string]string)
 	}
 
-	chartRes := r.gitHelmResourceString(sub, chn)
+	chartRes := r.gitHelmResourceString(sub, primaryChannel)
 	tpStr := dplStr
 
 	if len(chartRes) != 0 {

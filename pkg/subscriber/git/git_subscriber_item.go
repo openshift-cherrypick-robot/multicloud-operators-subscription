@@ -716,46 +716,28 @@ func (ghsi *SubscriberItem) cloneGitRepo() (commitID string, err error) {
 	ghsi.repoRoot = utils.GetLocalGitFolder(ghsi.Subscription)
 
 	// Get the primary channel connection options
-	primaryChannelConnectionConfig, err := getChannelConnectionConfig(ghsi.ChannelSecret, ghsi.ChannelConfigMap)
+	primaryChannelConnectionConfig, err := utils.GetChannelConnectionConfig(ghsi.ChannelSecret, ghsi.ChannelConfigMap)
 
 	if err != nil {
 		return "", err
 	}
+
+	primaryChannelConnectionConfig.RepoURL = ghsi.Channel.Spec.Pathname
+	cloneOptions.PrimaryConnectionOption = primaryChannelConnectionConfig
 
 	// Get the secondary channel connection options
-	secondaryChannelConnectionConfig, err := getChannelConnectionConfig(ghsi.SecondaryChannelSecret, ghsi.SecondaryChannelConfigMap)
-
-	if err != nil {
-		return "", err
-	}
-
-	cloneOptions.PrimaryConnectionOption = primaryChannelConnectionConfig
-	cloneOptions.SecondaryConnectionOption = secondaryChannelConnectionConfig
-
-	return utils.CloneGitRepo(cloneOptions)
-}
-
-func getChannelConnectionConfig(secret *corev1.Secret, configmap *corev1.ConfigMap) (connCfg *utils.ChannelConnectionCfg, err error) {
-	if secret != nil {
-		user, token, sshKey, passphrase, err := utils.ParseChannelSecret(secret)
+	if ghsi.SecondaryChannel != nil {
+		secondaryChannelConnectionConfig, err := utils.GetChannelConnectionConfig(ghsi.SecondaryChannelSecret, ghsi.SecondaryChannelConfigMap)
 
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 
-		connCfg.User = user
-		connCfg.Password = token
-		connCfg.SSHKey = sshKey
-		connCfg.Passphrase = passphrase
+		secondaryChannelConnectionConfig.RepoURL = ghsi.SecondaryChannel.Spec.Pathname
+		cloneOptions.SecondaryConnectionOption = secondaryChannelConnectionConfig
 	}
 
-	if configmap != nil {
-		caCert := configmap.Data[appv1.ChannelCertificateData]
-
-		connCfg.CaCerts = caCert
-	}
-
-	return connCfg, nil
+	return utils.CloneGitRepo(cloneOptions)
 }
 
 func (ghsi *SubscriberItem) sortClonedGitRepo() error {
