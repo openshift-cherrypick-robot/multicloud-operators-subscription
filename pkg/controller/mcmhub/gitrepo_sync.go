@@ -52,6 +52,7 @@ type kubeResourceMetadata struct {
 // GetGitResources clones the git repo and regenerate deployables and update annotation if needed
 func (r *ReconcileSubscription) GetGitResources(sub *appv1.Subscription, isAdmin bool) ([]*v1.ObjectReference, error) {
 	var objRefList []*v1.ObjectReference
+
 	origsub := &appv1.Subscription{}
 	sub.DeepCopyInto(origsub)
 
@@ -429,7 +430,6 @@ func (r *ReconcileSubscription) subscribeHelmCharts(chn *chnv1.Channel, sub *app
 			klog.Error("Failed to generate object reference", err)
 			return err
 		}
-
 	}
 
 	return nil

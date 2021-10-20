@@ -39,7 +39,7 @@ var (
 	appSubUnitStatus1 = SubscriptionUnitStatus{
 		Name:       "pkg1",
 		Namespace:  hostSub1.Namespace,
-		ApiVersion: "v1",
+		APIVersion: "v1",
 		Kind:       "ConfigMap",
 		Phase:      string(appSubStatusV1alpha1.PackageDeployed),
 		Message:    "Success",
@@ -48,7 +48,7 @@ var (
 	appSubUnitStatus2 = SubscriptionUnitStatus{
 		Name:       "pkg2",
 		Namespace:  hostSub1.Namespace,
-		ApiVersion: "v1",
+		APIVersion: "v1",
 		Kind:       "ConfigMap",
 		Phase:      string(appSubStatusV1alpha1.PackageDeployFailed),
 		Message:    "Success",
@@ -86,7 +86,7 @@ var _ = Describe("test create/update/delete appsub status for standalone", func(
 		err := s.SyncAppsubClusterStatus(nil, appsubClusterStatus, nil)
 		Expect(err).NotTo(HaveOccurred())
 
-		time.Sleep(4 * time.Second)
+		time.Sleep(8 * time.Second)
 
 		// Check appsubstatus exiss and no appsub report in appsub NS
 		appsubName := appsubClusterStatus.AppSub.Name
@@ -119,7 +119,7 @@ var _ = Describe("test create/update/delete appsub status for standalone", func(
 		err = s.SyncAppsubClusterStatus(nil, updateAppsubClusterStatus, nil)
 		Expect(err).NotTo(HaveOccurred())
 
-		time.Sleep(4 * time.Second)
+		time.Sleep(8 * time.Second)
 
 		err = k8sClient.List(context.TODO(), pkgstatuses, listopts)
 		Expect(err).NotTo(HaveOccurred())
@@ -139,7 +139,7 @@ var _ = Describe("test create/update/delete appsub status for standalone", func(
 		err = s.SyncAppsubClusterStatus(nil, rmAppsubClusterStatus, nil)
 		Expect(err).NotTo(HaveOccurred())
 
-		time.Sleep(4 * time.Second)
+		time.Sleep(8 * time.Second)
 
 		err = k8sClient.List(context.TODO(), pkgstatuses, listopts)
 		Expect(err).NotTo(HaveOccurred())
@@ -182,7 +182,7 @@ var _ = Describe("test create/update/delete appsub status for managed cluster", 
 		err := s.SyncAppsubClusterStatus(nil, appsubClusterStatus, nil)
 		Expect(err).NotTo(HaveOccurred())
 
-		time.Sleep(4 * time.Second)
+		time.Sleep(8 * time.Second)
 
 		// Check appsubstatus exiss and no appsub report in appsub NS
 		appsubName := appsubClusterStatus.AppSub.Name
@@ -214,7 +214,7 @@ var _ = Describe("test create/update/delete appsub status for managed cluster", 
 		err = s.SyncAppsubClusterStatus(nil, updateAppsubClusterStatus, nil)
 		Expect(err).NotTo(HaveOccurred())
 
-		time.Sleep(8 * time.Second)
+		time.Sleep(10 * time.Second)
 
 		err = k8sClient.List(context.TODO(), pkgstatuses, listopts)
 		Expect(err).NotTo(HaveOccurred())
@@ -242,7 +242,7 @@ var _ = Describe("test create/update/delete appsub status for managed cluster", 
 		err = s.SyncAppsubClusterStatus(nil, updateAppsubClusterStatus, nil)
 		Expect(err).NotTo(HaveOccurred())
 
-		time.Sleep(4 * time.Second)
+		time.Sleep(8 * time.Second)
 
 		err = k8sClient.List(context.TODO(), pkgstatuses, listopts)
 		Expect(err).NotTo(HaveOccurred())
@@ -267,13 +267,13 @@ var _ = Describe("test create/update/delete appsub status for managed cluster", 
 		err = s.SyncAppsubClusterStatus(nil, rmAppsubClusterStatus, nil)
 		Expect(err).NotTo(HaveOccurred())
 
-		time.Sleep(4 * time.Second)
+		time.Sleep(8 * time.Second)
 
 		err = k8sClient.List(context.TODO(), pkgstatuses, listopts)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(len(pkgstatuses.Items)).To(gomega.Equal(0))
 
-		// clean up cluster policy report after the test. Or it could fail the first standalone test if the test is done ealier
+		// clean up cluster policy report after the test. Or it could fail the first standalone test if the test is done earlier
 		err = k8sClient.Delete(context.TODO(), cAppsubReport)
 		Expect(err).NotTo(HaveOccurred())
 	})

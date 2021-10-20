@@ -48,7 +48,7 @@ type SubscriptionClusterStatusMap struct {
 // SubscriptionUnitStatus defines status of a package deployment.
 type SubscriptionUnitStatus struct {
 	Name           string       `json:"name,omitempty"`
-	ApiVersion     string       `json:"apiVersion,omitempty"`
+	APIVersion     string       `json:"apiVersion,omitempty"`
 	Kind           string       `json:"kind,omitempty"`
 	Namespace      string       `json:"namespace,omitempty"`
 	Phase          PackagePhase `json:"phase,omitempty"`

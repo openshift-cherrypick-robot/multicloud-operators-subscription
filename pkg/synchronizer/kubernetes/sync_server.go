@@ -42,7 +42,7 @@ type ResourceUnit struct {
 type SubscriptionUnitStatus struct {
 	Name       string
 	Namespace  string
-	ApiVersion string
+	APIVersion string
 	Kind       string
 	Phase      string
 	Message    string
@@ -76,10 +76,6 @@ type KubeSynchronizer struct {
 	dmtx                   sync.Mutex //this lock protect the dynamicFactory and stopCh
 	SkipAppSubStatusResDel bool       // used by helm subscriber to skip resource delete based on AppSubStatus
 }
-
-var (
-	crdRetryMultiplier = 3
-)
 
 var defaultSynchronizer *KubeSynchronizer
 

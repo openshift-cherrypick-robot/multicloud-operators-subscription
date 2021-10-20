@@ -423,12 +423,12 @@ func GetHostSubscriptionFromObject(obj metav1.Object) *types.NamespacedName {
 }
 
 // GetHostSubscriptionNSFromObject extract the appsub NS from the hosting-subscription label
-func GetHostSubscriptionNSFromObject(ClusterNsManagedSubStatusName string) (string, string) {
-	if ClusterNsManagedSubStatusName == "" {
+func GetHostSubscriptionNSFromObject(clusterNsManagedSubStatusName string) (string, string) {
+	if clusterNsManagedSubStatusName == "" {
 		return "", ""
 	}
 
-	parsedstr := strings.Split(ClusterNsManagedSubStatusName, ".")
+	parsedstr := strings.Split(clusterNsManagedSubStatusName, ".")
 	if len(parsedstr) != 2 {
 		return "", ""
 	}
@@ -1221,8 +1221,8 @@ func IsHostingAppsub(appsub *appv1.Subscription) bool {
 	return ok
 }
 
-// ParseApiVersion return group and version from a given apiVersion string
-func ParseApiVersion(apiVersion string) (string, string) {
+// ParseAPIVersion return group and version from a given apiVersion string
+func ParseAPIVersion(apiVersion string) (string, string) {
 	parsedstr := strings.Split(apiVersion, "/")
 	if len(parsedstr) == 1 {
 		return "", parsedstr[0]

@@ -242,27 +242,6 @@ func (r *ReconcileSubscription) GetChannelGeneration(s *appv1alpha1.Subscription
 	return strconv.FormatInt(chobj.Generation, 10), nil
 }
 
-func getStatusPerPackage(pkgStatus *appv1alpha1.SubscriptionUnitStatus, chn *chnv1alpha1.Channel) *appv1alpha1.SubscriptionUnitStatus {
-	subUnitStatus := &appv1alpha1.SubscriptionUnitStatus{}
-
-	switch chn.Spec.Type {
-	case "HelmRepo":
-		subUnitStatus.LastUpdateTime = pkgStatus.LastUpdateTime
-
-		if pkgStatus.ResourceStatus != nil {
-			setHelmSubUnitStatus(pkgStatus.ResourceStatus, subUnitStatus)
-		} else {
-			subUnitStatus.Phase = pkgStatus.Phase
-			subUnitStatus.Message = pkgStatus.Message
-			subUnitStatus.Reason = pkgStatus.Reason
-		}
-	default:
-		subUnitStatus = pkgStatus
-	}
-
-	return subUnitStatus
-}
-
 func setHelmSubUnitStatus(pkgResourceStatus *runtime.RawExtension, subUnitStatus *appv1alpha1.SubscriptionUnitStatus) {
 	if pkgResourceStatus == nil || subUnitStatus == nil {
 		klog.Errorf("failed to setHelmSubUnitStatus due to pkgResourceStatus %v or subUnitStatus %v is nil", pkgResourceStatus, subUnitStatus)
@@ -520,7 +499,9 @@ func (r *ReconcileSubscription) getObjectBucketResources(sub *appv1alpha1.Subscr
 
 	// converting template from object store to resource
 	var errMsgs []string
+
 	resources := []*v1.ObjectReference{}
+
 	for _, key := range keys {
 		tplb, err := awsHandler.Get(bucket, key)
 		if err != nil {

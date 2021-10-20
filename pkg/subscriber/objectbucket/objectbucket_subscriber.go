@@ -54,8 +54,6 @@ type Subscriber struct {
 
 var defaultSubscriber *Subscriber
 
-var objectbucketsyncsource = "subob-"
-
 // Add does nothing for namespace subscriber, it generates cache for each of the item.
 func Add(mgr manager.Manager, hubconfig *rest.Config, syncid *types.NamespacedName, syncinterval int, hub, standalone bool) error {
 	// No polling, use cache. Add default one for cluster namespace

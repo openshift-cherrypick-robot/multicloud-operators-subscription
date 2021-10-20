@@ -26,8 +26,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
-
-	appv1alpha1 "open-cluster-management.io/multicloud-operators-subscription/pkg/apis/apps/v1"
 )
 
 // https://github.com/kubernetes/kubernetes/issues/82130
@@ -101,41 +99,6 @@ func TestEventlog(t *testing.T) {
 
 	time.Sleep(1 * time.Second)
 }
-
-var (
-	dpln       = "test-dpl"
-	dplns      = "test-dpl-ns"
-	hostdplkey = types.NamespacedName{
-		Name:      dpln,
-		Namespace: dplns,
-	}
-
-	subn       = "test-sub"
-	subns      = "test-sub-ns"
-	hostsubkey = types.NamespacedName{
-		Name:      subn,
-		Namespace: subns,
-	}
-
-	cln       = "test-cluster"
-	clns      = "test-cluster-ns"
-	hostclkey = types.NamespacedName{
-		Name:      cln,
-		Namespace: clns,
-	}
-
-	cmn    = "test-configmap"
-	cmns   = "test-configmap-ns"
-	cfgmap = &corev1.ConfigMap{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      cmn,
-			Namespace: cmns,
-			Annotations: map[string]string{
-				appv1alpha1.AnnotationSyncSource: "testsource-" + hostsubkey.String(),
-			},
-		},
-	}
-)
 
 func TestValidateK8sLabel(t *testing.T) {
 	g := gomega.NewGomegaWithT(t)

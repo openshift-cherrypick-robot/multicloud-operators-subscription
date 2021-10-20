@@ -63,7 +63,6 @@ import (
 
 const (
 	sep                = ","
-	sepRes             = "/"
 	helmChartParent    = "helmchart"
 	objectBucketParent = "object"
 	hookParent         = "hook"
@@ -259,6 +258,7 @@ func getHelmTopoResources(hubClt client.Client, hubCfg *rest.Config, channel, se
 	}
 
 	var errMsgs []string
+
 	resources := []*v1.ObjectReference{}
 	cfg := rest.CopyConfig(hubCfg)
 

@@ -40,7 +40,6 @@ var SubscriptionGVK = schema.GroupVersionKind{Group: "apps.open-cluster-manageme
 type SubscriberItem struct {
 	appv1.SubscriberItem
 
-	count         int
 	reconcileRate string
 	syncTime      string
 	bucket        string
@@ -234,14 +233,6 @@ func (obsi *SubscriberItem) initObjectStore() error {
 	}
 
 	return nil
-}
-
-// In aws s3 bucket, key could contain folder name. e.g. subfolder1/configmap3.yaml
-// As a result, the hosting deployable annotation (NamespacedName) will be <namespace>/subfolder1/configmap3.yaml
-// The invalid hosting deployable annotation will break the synchronizer
-
-func generateDplNameFromKey(key string) string {
-	return strings.ReplaceAll(key, "/", "-")
 }
 
 func (obsi *SubscriberItem) doSubscriptionWithRetries(retryInterval time.Duration, retries int) {

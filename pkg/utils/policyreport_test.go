@@ -65,11 +65,13 @@ func TestAppSubPropagationFailedAppsubReport(t *testing.T) {
 
 	prResultFoundIndex := -1
 	prResultSource := appSubNs + "/" + appSubName
+
 	for i, result := range appsubReport.Results {
 		if result.Source == prResultSource {
 			prResultFoundIndex = i
 			break
 		}
 	}
+
 	g.Expect(prResultFoundIndex).Should(gomega.Equal(0))
 }

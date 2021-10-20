@@ -307,7 +307,6 @@ func (r *ReconcileAppSubSummary) newAppSubReport(appsubNs, appsubName string,
 		Resources:  appsubResourceList,
 		Results:    newAppsubReportResults,
 		Summary: appsubReportV1alpha1.SubscriptionReportSummary{
-			// TODO: Have to get total cluster count for app from appsub?
 			Deployed:          clustersStatus.Deployed,
 			Failed:            clustersStatus.Failed,
 			PropagationFailed: clustersStatus.PropagationFailed,

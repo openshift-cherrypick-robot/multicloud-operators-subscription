@@ -631,26 +631,6 @@ func (r *ReconcileSubscription) Reconcile(ctx context.Context, request reconcile
 	return result, nil
 }
 
-func isTopoAnnoExist(sub *appv1.Subscription) bool {
-	if sub == nil {
-		return false
-	}
-
-	annotation := sub.GetAnnotations()
-
-	if len(annotation) == 0 {
-		return false
-	}
-
-	v, ok := annotation[appv1.AnnotationTopo]
-
-	if !ok {
-		return false
-	}
-
-	return len(v) != 0
-}
-
 // IsSubscriptionCompleted will check:
 // a, if the subscription itself is processed
 // b, for each of the subscription created on managed cluster, it will check if

@@ -92,7 +92,7 @@ var _ = Describe("test Delete Single Subscribed Resource", func() {
 		pkgStatus := appSubStatusV1alpha1.SubscriptionUnitStatus{
 			Name:       "configmap1",
 			Namespace:  "default",
-			ApiVersion: "v1",
+			APIVersion: "v1",
 			Kind:       "ConfigMap",
 		}
 
@@ -107,7 +107,7 @@ var _ = Describe("test Delete Single Subscribed Resource", func() {
 		pkgStatus = appSubStatusV1alpha1.SubscriptionUnitStatus{
 			Name:       "deployment1",
 			Namespace:  "default",
-			ApiVersion: "apps/v1",
+			APIVersion: "apps/v1",
 			Kind:       "Deployment",
 		}
 

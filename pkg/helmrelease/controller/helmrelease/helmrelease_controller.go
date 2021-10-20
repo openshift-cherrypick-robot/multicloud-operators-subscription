@@ -717,7 +717,7 @@ func (r *ReconcileHelmRelease) populateAppSubStatus(
 
 					for _, file := range files {
 						appSubUnitStatus := kubesynchronizer.SubscriptionUnitStatus{}
-						appSubUnitStatus.ApiVersion = file.Head.Version
+						appSubUnitStatus.APIVersion = file.Head.Version
 						appSubUnitStatus.Kind = file.Head.Kind
 						appSubUnitStatus.Name = file.Head.Metadata.Name
 						appSubUnitStatus.Namespace = instance.Namespace

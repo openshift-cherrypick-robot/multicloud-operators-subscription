@@ -46,7 +46,6 @@ const (
 	testGitPath         = "../../.."
 )
 
-var k8sManager mgr.Manager
 var k8sClt client.Client
 var specTimeOut = pullInterval * 10
 var setRequeueInterval = func(r *ReconcileSubscription) {

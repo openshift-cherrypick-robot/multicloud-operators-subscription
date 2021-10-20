@@ -39,7 +39,7 @@ func (sync *KubeSynchronizer) getGVRfromGVK(group, version, kind string) (schema
 
 	mapping, err := sync.RestMapper.RESTMapping(pkgGK, version)
 	if err != nil {
-		return schema.GroupVersionResource{}, false, fmt.Errorf("Failed to get GVR from restmapping: %v", err)
+		return schema.GroupVersionResource{}, false, fmt.Errorf("failed to get GVR from restmapping: %v", err)
 	}
 
 	var isNamespaced bool = true
@@ -56,7 +56,7 @@ func (sync *KubeSynchronizer) getGVRfromGVK(group, version, kind string) (schema
 // DeleteSingleSubscribedResource delete a subcribed resource from a appsub.
 func (sync *KubeSynchronizer) DeleteSingleSubscribedResource(hostSub types.NamespacedName,
 	pkgStatus appSubStatusV1alpha1.SubscriptionUnitStatus) error {
-	pkgGroup, pkgVersion := utils.ParseApiVersion(pkgStatus.ApiVersion)
+	pkgGroup, pkgVersion := utils.ParseAPIVersion(pkgStatus.APIVersion)
 
 	if pkgGroup == "" && pkgVersion == "" {
 		klog.Infof("invalid apiversion pkgStatus: %v", pkgStatus)
@@ -149,7 +149,7 @@ func (sync *KubeSynchronizer) PurgeAllSubscribedResources(appsub *appv1alpha1.Su
 	} else {
 		for _, pkgStatus := range appSubStatus.Statuses.SubscriptionStatus {
 			appSubUnitStatus := SubscriptionUnitStatus{}
-			appSubUnitStatus.ApiVersion = pkgStatus.ApiVersion
+			appSubUnitStatus.APIVersion = pkgStatus.APIVersion
 			appSubUnitStatus.Kind = pkgStatus.Kind
 			appSubUnitStatus.Name = pkgStatus.Name
 			appSubUnitStatus.Namespace = pkgStatus.Namespace
@@ -214,7 +214,7 @@ func (sync *KubeSynchronizer) ProcessSubResources(appsub *appv1alpha1.Subscripti
 
 		resource.Resource = template
 
-		appSubUnitStatus.ApiVersion = resource.Resource.GetAPIVersion()
+		appSubUnitStatus.APIVersion = resource.Resource.GetAPIVersion()
 		appSubUnitStatus.Kind = resource.Resource.GetKind()
 		appSubUnitStatus.Name = resource.Resource.GetName()
 		appSubUnitStatus.Namespace = resource.Resource.GetNamespace()

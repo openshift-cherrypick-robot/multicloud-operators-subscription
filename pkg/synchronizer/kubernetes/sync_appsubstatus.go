@@ -78,8 +78,8 @@ func (sync *KubeSynchronizer) SyncAppsubClusterStatus(appsub *appv1.Subscription
 	}
 
 	pkgstatus := &v1alpha1.SubscriptionStatus{}
-
 	foundPkgStatus := true
+
 	if err := sync.LocalClient.Get(context.TODO(),
 		client.ObjectKey{Name: pkgstatusName, Namespace: pkgstatusNs}, pkgstatus); err != nil {
 
@@ -93,13 +93,14 @@ func (sync *KubeSynchronizer) SyncAppsubClusterStatus(appsub *appv1.Subscription
 
 	if appsubClusterStatus.Action == "APPLY" {
 		newUnitStatus := []v1alpha1.SubscriptionUnitStatus{}
+
 		for _, resource := range appsubClusterStatus.SubscriptionPackageStatus {
 			klog.V(1).Infof("resource status - Name: %v, Namespace: %v, Apiversion: %v, Kind: %v, Phase: %v, Message: %v\n",
-				resource.Name, resource.Namespace, resource.ApiVersion, resource.Kind, resource.Phase, resource.Message)
+				resource.Name, resource.Namespace, resource.APIVersion, resource.Kind, resource.Phase, resource.Message)
 
 			uS := &v1alpha1.SubscriptionUnitStatus{
 				Name:           resource.Name,
-				ApiVersion:     resource.ApiVersion,
+				APIVersion:     resource.APIVersion,
 				Kind:           resource.Kind,
 				Namespace:      resource.Namespace,
 				Phase:          v1alpha1.PackagePhase(resource.Phase),
@@ -142,7 +143,7 @@ func (sync *KubeSynchronizer) SyncAppsubClusterStatus(appsub *appv1.Subscription
 						if oldResource.Name == newResource.Name &&
 							oldResource.Namespace == newResource.Namespace &&
 							oldResource.Kind == newResource.Kind &&
-							oldResource.ApiVersion == newResource.ApiVersion {
+							oldResource.APIVersion == newResource.APIVersion {
 
 							found = true
 							break
@@ -210,6 +211,7 @@ func (sync *KubeSynchronizer) SyncAppsubClusterStatus(appsub *appv1.Subscription
 
 		// Check if there are any package failures
 		deployFailed := false
+
 		for _, resource := range appsubClusterStatus.SubscriptionPackageStatus {
 			if v1alpha1.PackagePhase(resource.Phase) == v1alpha1.PackageDeployFailed {
 				deployFailed = true
@@ -233,7 +235,7 @@ func (sync *KubeSynchronizer) SyncAppsubClusterStatus(appsub *appv1.Subscription
 		for _, resource := range appsubClusterStatus.SubscriptionPackageStatus {
 			uS := &v1alpha1.SubscriptionUnitStatus{
 				Name:           resource.Name,
-				ApiVersion:     resource.ApiVersion,
+				APIVersion:     resource.APIVersion,
 				Kind:           resource.Kind,
 				Namespace:      resource.Namespace,
 				Phase:          v1alpha1.PackagePhase(resource.Phase),
@@ -268,12 +270,14 @@ func (sync *KubeSynchronizer) SyncAppsubClusterStatus(appsub *appv1.Subscription
 		if len(failedUnitStatuses) == 0 {
 			if foundPkgStatus {
 				klog.V(1).Infof("Delete from managed cluster, appsubstatus:%v/%v", pkgstatus.Namespace, pkgstatus.Name)
+
 				if err := sync.LocalClient.Delete(context.TODO(), pkgstatus); err != nil {
 					klog.Errorf("Error delete from managed cluster, appsubstatus:%v/%v, err:%v", pkgstatus.Namespace, pkgstatus.Name, err)
 					return err
 				}
 
 				klog.V(1).Infof("Delete result from cluster AppsubReport:%v/%v", pkgstatus.Namespace, pkgstatus.Name)
+
 				if err := deleteAppsubReportResult(sync.RemoteClient, appsubClusterStatus.AppSub.Namespace,
 					appsubName, appsubClusterStatus.Cluster, sync.standalone, appsubClusterStatus.SubscriptionPackageStatus); err != nil {
 					return err
@@ -283,11 +287,11 @@ func (sync *KubeSynchronizer) SyncAppsubClusterStatus(appsub *appv1.Subscription
 			klog.V(2).Infof("%v subscription resources failed to delete", len(failedUnitStatuses))
 
 			if !foundPkgStatus {
-				// TODO: appsubstatus doesn't exist - recreate it?
 				klog.Infof("appSubStatus already deleted, ignore update")
 			} else {
 				klog.V(1).Infof("Update on managed cluster, appsubstatus:%v/%v", pkgstatus.Namespace, pkgstatus.Name)
 				pkgstatus.Statuses.SubscriptionStatus = failedUnitStatuses
+
 				if err := sync.LocalClient.Update(context.TODO(), pkgstatus); err != nil {
 					klog.Errorf("Error in updating on managed cluster, appsubstatus:%v/%v, err:%v", pkgstatus.Namespace, pkgstatusName, err)
 					return err
@@ -295,6 +299,7 @@ func (sync *KubeSynchronizer) SyncAppsubClusterStatus(appsub *appv1.Subscription
 
 				// Check if there are any package failures
 				deployFailed := false
+
 				for _, resource := range appsubClusterStatus.SubscriptionPackageStatus {
 					if v1alpha1.PackagePhase(resource.Phase) == v1alpha1.PackageDeployFailed {
 						deployFailed = true
@@ -324,15 +329,15 @@ func (sync *KubeSynchronizer) recordAppSubStatusEvents(appsub *appv1.Subscriptio
 	}
 
 	packageStatuses := fmt.Sprintf("AppSub: '%s/%s'; User: '%s'; Action: '%s'; ", appsub.Namespace, appsub.Name, curUser, action)
-	packageStatuses = packageStatuses + "PackageStatus: 'Name|Namespace|Apiversion|Kind|Phase|Message|LastUpdateTime"
+	packageStatuses += "PackageStatus: 'Name|Namespace|Apiversion|Kind|Phase|Message|LastUpdateTime"
 
 	for _, resource := range pkgStatuses {
 		pkgmsg := fmt.Sprintf(",%s|%s|%s|%s|%s|%s|%s", resource.Name, resource.Namespace,
-			resource.ApiVersion, resource.Kind, resource.Phase, resource.Message, resource.LastUpdateTime.Format("2006-01-02 15:04:05"))
-		packageStatuses = packageStatuses + pkgmsg
+			resource.APIVersion, resource.Kind, resource.Phase, resource.Message, resource.LastUpdateTime.Format("2006-01-02 15:04:05"))
+		packageStatuses += pkgmsg
 	}
 
-	packageStatuses = packageStatuses + "'"
+	packageStatuses += "'"
 
 	sync.eventrecorder.RecordEvent(appsub, action, packageStatuses, nil)
 }
@@ -354,19 +359,20 @@ func buildAppSubStatus(statusName, statusNs, appsubName, appsubNs, cluster strin
 	return pkgstatus
 }
 
-func updateAppsubReportResult(rClient client.Client, appsubNs, appsubName, clusterAppsubReportNs string, deployFailed, standalone bool, appsubUnitStatus []SubscriptionUnitStatus) error {
+func updateAppsubReportResult(rClient client.Client, appsubNs, appsubName, clusterAppsubReportNs string,
+	deployFailed, standalone bool, appsubUnitStatus []SubscriptionUnitStatus) error {
 	// For managed clusters, get cluster AppsubReport
 	var appsubReport *v1alpha1.SubscriptionReport
 	var err error
 	if standalone {
 		klog.Infof("Standalone appsub, skip create/update of policy report")
 		return nil
-	} else {
-		appsubReport, err = getClusterAppsubReport(rClient, appsubNs, appsubName, clusterAppsubReportNs, true)
-		if err != nil {
-			klog.Errorf("Error getting cluster AppsubReport:%v/%v, err:%v", appsubReport.Namespace, appsubReport.Name, err)
-			return err
-		}
+	}
+
+	appsubReport, err = getClusterAppsubReport(rClient, appsubNs, appsubName, clusterAppsubReportNs, true)
+	if err != nil {
+		klog.Errorf("Error getting cluster AppsubReport:%v/%v, err:%v", appsubReport.Namespace, appsubReport.Name, err)
+		return err
 	}
 
 	result := v1alpha1.SubscriptionResult("deployed")
@@ -383,6 +389,7 @@ func updateAppsubReportResult(rClient client.Client, appsubNs, appsubName, clust
 			break
 		}
 	}
+
 	klog.V(1).Infof("Update AppsubReport: %v/%v, resultIndex:%v", appsubReport.Namespace, appsubReport.Name, prResultFoundIndex)
 
 	if prResultFoundIndex < 0 {
@@ -408,37 +415,43 @@ func updateAppsubReportResult(rClient client.Client, appsubNs, appsubName, clust
 	return nil
 }
 
-func deleteAppsubReportResult(rClient client.Client, appsubNs, appsubName, clusterAppsubReportNs string, standalone bool, appsubUnitStatus []SubscriptionUnitStatus) error {
+func deleteAppsubReportResult(rClient client.Client, appsubNs, appsubName, clusterAppsubReportNs string,
+	standalone bool, appsubUnitStatus []SubscriptionUnitStatus) error {
 	source := appsubNs + "/" + appsubName
 	klog.V(1).Infof("Delete AppsubReport result, Namespace:%v, source:%v", clusterAppsubReportNs, source)
 
 	// For managed clusters, get cluster appsubReport, for standalone get app appsubReport
 	var appsubReport *v1alpha1.SubscriptionReport
 	var err error
+
 	if standalone {
 		klog.V(2).Infof("Standalone appsub, skip deletion of cluster appsubReport")
 		return nil
-	} else {
-		appsubReport, err = getClusterAppsubReport(rClient, appsubNs, appsubName, clusterAppsubReportNs, false)
-		if err != nil {
-			if errors.IsNotFound(err) {
-				klog.Infof("Cluster AppsubReport not found:%v/%v, skip deleting appsubReport result source:%v", appsubReport.Namespace, appsubReport.Name, source)
-				return nil
-			} else {
-				klog.Errorf("Error getting cluster appsubReport:%v/%v, err:%v", appsubReport.Namespace, appsubReport.Name, err)
-				return err
-			}
+	}
+
+	appsubReport, err = getClusterAppsubReport(rClient, appsubNs, appsubName, clusterAppsubReportNs, false)
+
+	if err != nil {
+		if errors.IsNotFound(err) {
+			klog.Infof("Cluster AppsubReport not found:%v/%v, skip deleting appsubReport result source:%v", appsubReport.Namespace, appsubReport.Name, source)
+			return nil
 		}
+
+		klog.Errorf("Error getting cluster appsubReport:%v/%v, err:%v", appsubReport.Namespace, appsubReport.Name, err)
+
+		return err
 	}
 
 	// Find the corresponding result from the appsubReport and remove it if it exists
 	prResultFoundIndex := -1
+
 	for i, result := range appsubReport.Results {
 		if result.Source == source {
 			prResultFoundIndex = i
 			break
 		}
 	}
+
 	klog.V(1).Infof("Update appsubReport: %v/%v, resultIndex:%v", appsubReport.Namespace, appsubReport.Name, prResultFoundIndex)
 
 	if prResultFoundIndex >= 0 {

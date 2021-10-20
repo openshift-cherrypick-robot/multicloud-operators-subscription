@@ -37,12 +37,14 @@ func CreateFailedAppsubReportResult(client client.Client, cluster string, appsub
 	// Update result in appsub report
 	prResultFoundIndex := -1
 	prResultSource := appsubNs + "/" + appsubName
+
 	for i, result := range appsubReport.Results {
 		if result.Source == prResultSource {
 			prResultFoundIndex = i
 			break
 		}
 	}
+
 	klog.V(1).Infof("Update appsubReport: %v/%v, resultIndex:%v", appsubReport.Namespace, appsubReport.Name, prResultFoundIndex)
 
 	if prResultFoundIndex < 0 {
@@ -65,7 +67,8 @@ func CreateFailedAppsubReportResult(client client.Client, cluster string, appsub
 	return nil
 }
 
-func getClusterAppsubReport(rClient client.Client, appsubNs, appsubName, clusterAppsubReportNs string, create bool) (*appsubReportV1alpha1.SubscriptionReport, error) {
+func getClusterAppsubReport(rClient client.Client, appsubNs, appsubName, clusterAppsubReportNs string,
+	create bool) (*appsubReportV1alpha1.SubscriptionReport, error) {
 	appsubReport := &appsubReportV1alpha1.SubscriptionReport{}
 	appsubReport.Namespace = clusterAppsubReportNs
 	appsubReport.Name = clusterAppsubReportNs
