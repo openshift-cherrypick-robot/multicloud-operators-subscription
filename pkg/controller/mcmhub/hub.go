@@ -16,7 +16,6 @@ package mcmhub
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"reflect"
@@ -30,7 +29,6 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/validation"
@@ -41,7 +39,6 @@ import (
 	chnv1alpha1 "open-cluster-management.io/multicloud-operators-channel/pkg/apis/apps/v1"
 
 	"github.com/ghodss/yaml"
-	releasev1 "open-cluster-management.io/multicloud-operators-subscription/pkg/apis/apps/helmrelease/v1"
 	appv1 "open-cluster-management.io/multicloud-operators-subscription/pkg/apis/apps/v1"
 	appv1alpha1 "open-cluster-management.io/multicloud-operators-subscription/pkg/apis/apps/v1"
 	appsubreportv1alpha1 "open-cluster-management.io/multicloud-operators-subscription/pkg/apis/apps/v1alpha1"
@@ -105,7 +102,7 @@ func (r *ReconcileSubscription) doMCMHubReconcile(sub *appv1alpha1.Subscription)
 	case chnv1alpha1.ChannelTypeHelmRepo:
 		resources, err = getHelmTopoResources(r.Client, r.cfg, primaryChannel, secondaryChannel, sub, isAdmin)
 	case chnv1alpha1.ChannelTypeObjectBucket:
-		resources, err = r.getObjectBucketResources(sub, primaryChannel, secondaryChannel, objectBucketParent, isAdmin)
+		resources, err = r.getObjectBucketResources(sub, primaryChannel, secondaryChannel, isAdmin)
 	}
 
 	if err != nil {
@@ -240,45 +237,6 @@ func (r *ReconcileSubscription) GetChannelGeneration(s *appv1alpha1.Subscription
 	}
 
 	return strconv.FormatInt(chobj.Generation, 10), nil
-}
-
-func setHelmSubUnitStatus(pkgResourceStatus *runtime.RawExtension, subUnitStatus *appv1alpha1.SubscriptionUnitStatus) {
-	if pkgResourceStatus == nil || subUnitStatus == nil {
-		klog.Errorf("failed to setHelmSubUnitStatus due to pkgResourceStatus %v or subUnitStatus %v is nil", pkgResourceStatus, subUnitStatus)
-		return
-	}
-
-	helmAppStatus := &releasev1.HelmAppStatus{}
-	err := json.Unmarshal(pkgResourceStatus.Raw, helmAppStatus)
-
-	if err != nil {
-		klog.Error("Failed to unmashall pkgResourceStatus to helm condition. err: ", err)
-	}
-
-	subUnitStatus.Phase = "Subscribed"
-	subUnitStatus.Message = ""
-	subUnitStatus.Reason = ""
-
-	messages := []string{}
-	reasons := []string{}
-
-	for _, condition := range helmAppStatus.Conditions {
-		if strings.Contains(string(condition.Reason), "Error") {
-			subUnitStatus.Phase = "Failed"
-
-			messages = append(messages, condition.Message)
-
-			reasons = append(reasons, string(condition.Reason))
-		}
-	}
-
-	if len(messages) > 0 {
-		subUnitStatus.Message = strings.Join(messages, ", ")
-	}
-
-	if len(reasons) > 0 {
-		subUnitStatus.Reason = strings.Join(reasons, ", ")
-	}
 }
 
 func (r *ReconcileSubscription) createAppAppsubReport(sub *appv1alpha1.Subscription, resources []*v1.ObjectReference,
@@ -457,7 +415,7 @@ func (r *ReconcileSubscription) initObjectStore(channel *chnv1alpha1.Channel) (*
 }
 
 func (r *ReconcileSubscription) getObjectBucketResources(sub *appv1alpha1.Subscription, channel, secondaryChannel *chnv1alpha1.Channel,
-	parentType string, isAdmin bool) ([]*v1.ObjectReference, error) {
+	isAdmin bool) ([]*v1.ObjectReference, error) {
 	awsHandler, bucket, err := r.initObjectStore(channel)
 	if err != nil {
 		klog.Error(err, "Unable to access object store: ")

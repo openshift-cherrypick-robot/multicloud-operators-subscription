@@ -35,7 +35,7 @@ func TestMain(m *testing.M) {
 		"PersistentVolumeClaimResize,ResourceQuota",
 	}
 
-	apiServerFlags := append([]string(nil), envtest.DefaultKubeAPIServerFlags...)
+	apiServerFlags := append([]string(nil), envtest.DefaultKubeAPIServerFlags...) //nolint
 	apiServerFlags = append(apiServerFlags, customAPIServerFlags...)
 
 	t := &envtest.Environment{

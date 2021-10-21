@@ -84,7 +84,6 @@ func main() {
 
 		// handle helmrelease crd
 		utils.DeleteHelmReleaseCRD(runtimeClient, crdx)
-
 	} else {
 		klog.Info("This is ACM hub cluster. Skip deleting helmrelease CRDs.")
 	}

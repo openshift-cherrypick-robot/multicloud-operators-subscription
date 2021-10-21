@@ -83,7 +83,10 @@ func (r *ReconcileAppSubSummary) houseKeeping() {
 	klog.Info("Start aggregating all appsub reports based on appsubReport per cluster...")
 
 	// create or update all app appsubReport object in the appsub NS
-	r.generateAppSubSummary()
+	err := r.generateAppSubSummary()
+	if err != nil {
+		klog.Warning("error while generating app sub summary: ", err)
+	}
 
 	klog.Info("Finish aggregating all appsub reports.")
 }
@@ -195,7 +198,6 @@ func (r *ReconcileAppSubSummary) UpdateAppSubMapsPerCluster(appsubReportPerClust
 func (r *ReconcileAppSubSummary) createOrUpdateAppSubReport(
 	appSubClusterStatusMap map[string]AppSubClustersStatus) {
 	// Find existing appSubReport for app - can assume it exists for now
-
 	klog.Infof("appSub Cluster FailStatus Map Count: %v", len(appSubClusterStatusMap))
 
 	for appsub, clustersStatus := range appSubClusterStatusMap {

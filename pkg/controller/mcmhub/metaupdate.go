@@ -62,10 +62,9 @@ import (
 )
 
 const (
-	sep                = ","
-	helmChartParent    = "helmchart"
-	objectBucketParent = "object"
-	hookParent         = "hook"
+	sep             = ","
+	helmChartParent = "helmchart"
+	hookParent      = "hook"
 )
 
 var _ genericclioptions.RESTClientGetter = &restClientGetter{}

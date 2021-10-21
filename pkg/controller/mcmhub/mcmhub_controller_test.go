@@ -50,27 +50,6 @@ var (
 			Type: chnv1alpha1.ChannelTypeNamespace,
 		},
 	}
-
-	helmKey = types.NamespacedName{
-		Name:      "ch-helm",
-		Namespace: "ch-helm-ns",
-	}
-
-	chHelm = &chnv1alpha1.Channel{
-		TypeMeta: metav1.TypeMeta{
-			APIVersion: "apps.open-cluster-management.io/v1",
-			Kind:       "Channel",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      helmKey.Name,
-			Namespace: helmKey.Namespace,
-		},
-		Spec: chnv1alpha1.ChannelSpec{
-			Type:               chnv1alpha1.ChannelTypeHelmRepo,
-			Pathname:           "https://charts.helm.sh/stable",
-			InsecureSkipVerify: true,
-		},
-	}
 )
 
 var (

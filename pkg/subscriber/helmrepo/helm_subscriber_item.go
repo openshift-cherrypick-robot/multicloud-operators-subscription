@@ -48,7 +48,6 @@ import (
 // SubscriberItem - defines the unit of namespace subscription.
 type SubscriberItem struct {
 	appv1.SubscriberItem
-
 	hash          string
 	reconcileRate string
 	syncTime      string

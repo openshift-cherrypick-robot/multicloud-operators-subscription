@@ -60,7 +60,7 @@ func TestAppSubPropagationFailedAppsubReport(t *testing.T) {
 
 	time.Sleep(1 * time.Second)
 
-	appsubReport, err := getClusterAppsubReport(c, appSubNs, appSubName, cluster, false)
+	appsubReport, err := getClusterAppsubReport(c, cluster, false)
 	g.Expect(err).NotTo(gomega.HaveOccurred())
 
 	prResultFoundIndex := -1

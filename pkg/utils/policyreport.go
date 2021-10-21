@@ -28,7 +28,7 @@ import (
 // Create PropagatioFailed result in cluster appsubReport in the managed cluster namespace
 func CreateFailedAppsubReportResult(client client.Client, cluster string, appsubNs, appsubName, statusMsg string) error {
 	// Get cluster appsub reports
-	appsubReport, err := getClusterAppsubReport(client, appsubNs, appsubName, cluster, true)
+	appsubReport, err := getClusterAppsubReport(client, cluster, true)
 	if err != nil {
 		klog.Errorf("Error getting cluster appsubReport:%v/%v, err:%v", appsubReport.Namespace, appsubReport.Name, err)
 		return err
@@ -67,7 +67,7 @@ func CreateFailedAppsubReportResult(client client.Client, cluster string, appsub
 	return nil
 }
 
-func getClusterAppsubReport(rClient client.Client, appsubNs, appsubName, clusterAppsubReportNs string,
+func getClusterAppsubReport(rClient client.Client, clusterAppsubReportNs string,
 	create bool) (*appsubReportV1alpha1.SubscriptionReport, error) {
 	appsubReport := &appsubReportV1alpha1.SubscriptionReport{}
 	appsubReport.Namespace = clusterAppsubReportNs

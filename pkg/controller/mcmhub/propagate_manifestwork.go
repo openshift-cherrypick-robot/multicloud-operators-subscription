@@ -77,7 +77,10 @@ func (r *ReconcileSubscription) PropagateAppSubManifestWork(instance *appSubV1.S
 		}
 
 		// remove relative appSubPakcageStatus CRs from the expired manifestWork cluster NS
-		r.cleanupAppSubStatus(instance, manifestWork.GetNamespace())
+		cleanupErr := r.cleanupAppSubStatus(instance, manifestWork.GetNamespace())
+		if cleanupErr != nil {
+			klog.Warning("error while clean up app sub status: ", cleanupErr)
+		}
 	}
 
 	return err

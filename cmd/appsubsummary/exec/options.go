@@ -46,5 +46,4 @@ func ProcessFlags() {
 		options.SyncInterval,
 		"The interval of housekeeping in seconds.",
 	)
-
 }

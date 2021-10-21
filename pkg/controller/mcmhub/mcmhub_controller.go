@@ -491,9 +491,12 @@ func (r *ReconcileSubscription) Reconcile(ctx context.Context, request reconcile
 	if err != nil {
 		if errors.IsNotFound(err) {
 			klog.Info("Subscription: ", request.NamespacedName, " is gone")
-
 			klog.Infof("Clean up all the manifestWorks owned by appsub: %v", request.NamespacedName)
-			r.cleanupManifestWork(request.NamespacedName)
+
+			cleanupErr := r.cleanupManifestWork(request.NamespacedName)
+			if cleanupErr != nil {
+				klog.Warning("error while cleanup manifestwork ", cleanupErr)
+			}
 
 			// Object not found, delete existing subscriberitem if any
 			if err := r.hooks.DeregisterSubscription(request.NamespacedName); err != nil {
@@ -606,10 +609,14 @@ func (r *ReconcileSubscription) Reconcile(ctx context.Context, request reconcile
 		// no longer hub subscription
 		if !utils.IsHostingAppsub(instance) {
 			klog.Infof("Clean up all the manifestWorks owned by appsub: %v/%v", instance.GetNamespace(), instance.GetName())
-			r.cleanupManifestWork(types.NamespacedName{
+
+			cleanupErr := r.cleanupManifestWork(types.NamespacedName{
 				Namespace: instance.Namespace,
 				Name:      instance.Name,
 			})
+			if cleanupErr != nil {
+				klog.Warning("error while cleanup manifestwork ", cleanupErr)
+			}
 		}
 
 		if instance.Status.Phase != appv1.SubscriptionFailed && instance.Status.Phase != appv1.SubscriptionSubscribed {

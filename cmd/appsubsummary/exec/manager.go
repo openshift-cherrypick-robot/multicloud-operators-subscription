@@ -83,5 +83,4 @@ func RunManager() {
 		klog.Error(err, "Manager exited non-zero")
 		os.Exit(1)
 	}
-
 }

@@ -233,27 +233,27 @@ func (r *ReconcileSubscription) processRepo(chn *chnv1.Channel, sub *appv1.Subsc
 	errMessage := ""
 	objRefMap := make(map[v1.ObjectReference]*v1.ObjectReference)
 
-	err = r.subscribeResources(chn, sub, crdsAndNamespaceFiles, baseDir, objRefMap)
+	err = r.subscribeResources(crdsAndNamespaceFiles, baseDir, objRefMap)
 	if err != nil {
 		errMessage += err.Error() + "/n"
 	}
 
-	err = r.subscribeResources(chn, sub, rbacFiles, baseDir, objRefMap)
+	err = r.subscribeResources(rbacFiles, baseDir, objRefMap)
 	if err != nil {
 		errMessage += err.Error() + "/n"
 	}
 
-	err = r.subscribeResources(chn, sub, otherFiles, baseDir, objRefMap)
+	err = r.subscribeResources(otherFiles, baseDir, objRefMap)
 	if err != nil {
 		errMessage += err.Error() + "/n"
 	}
 
-	err = r.subscribeKustomizations(chn, sub, kustomizeDirs, baseDir, objRefMap)
+	err = r.subscribeKustomizations(sub, kustomizeDirs, baseDir, objRefMap)
 	if err != nil {
 		errMessage += err.Error() + "/n"
 	}
 
-	err = r.subscribeHelmCharts(chn, sub, indexFile, objRefMap)
+	err = r.subscribeHelmCharts(chn, indexFile, objRefMap)
 	if err != nil {
 		errMessage += err.Error() + "/n"
 	}
@@ -286,7 +286,7 @@ func (r *ReconcileSubscription) processRepo(chn *chnv1.Channel, sub *appv1.Subsc
 	return objRefList, nil
 }
 
-func (r *ReconcileSubscription) subscribeResources(chn *chnv1.Channel, sub *appv1.Subscription,
+func (r *ReconcileSubscription) subscribeResources(
 	rscFiles []string, baseDir string, objRefMap map[v1.ObjectReference]*v1.ObjectReference) error {
 	// sync kube resource manifests
 	for _, rscFile := range rscFiles {
@@ -306,9 +306,6 @@ func (r *ReconcileSubscription) subscribeResources(chn *chnv1.Channel, sub *appv
 
 		klog.Info("Processing ... " + rscFile)
 
-		resourceDir := strings.TrimPrefix(dir, baseDir)
-		resourceDir = strings.Trim(resourceDir, "/")
-
 		resources := utils.ParseKubeResoures(file)
 
 		if len(resources) > 0 {
@@ -324,7 +321,7 @@ func (r *ReconcileSubscription) subscribeResources(chn *chnv1.Channel, sub *appv
 	return nil
 }
 
-func (r *ReconcileSubscription) subscribeKustomizations(chn *chnv1.Channel, sub *appv1.Subscription, kustomizeDirs map[string]string,
+func (r *ReconcileSubscription) subscribeKustomizations(sub *appv1.Subscription, kustomizeDirs map[string]string,
 	baseDir string, objRefMap map[v1.ObjectReference]*v1.ObjectReference) error {
 	for _, kustomizeDir := range kustomizeDirs {
 		klog.Info("Applying kustomization ", kustomizeDir)
@@ -359,11 +356,9 @@ func (r *ReconcileSubscription) subscribeKustomizations(chn *chnv1.Channel, sub 
 
 			if t.APIVersion == "" || t.Kind == "" {
 				klog.Info("Not a Kubernetes resource")
-			} else {
-				if err := r.addObjectReference(objRefMap, resourceFile); err != nil {
-					klog.Error("Failed to generate object reference", err)
-					return err
-				}
+			} else if err := r.addObjectReference(objRefMap, resourceFile); err != nil {
+				klog.Error("Failed to generate object reference", err)
+				return err
 			}
 		}
 	}
@@ -389,7 +384,7 @@ type sourceURLs struct {
 	ChartPath string   `json:"chartPath,omitempty"`
 }
 
-func (r *ReconcileSubscription) subscribeHelmCharts(chn *chnv1.Channel, sub *appv1.Subscription, indexFile *repo.IndexFile,
+func (r *ReconcileSubscription) subscribeHelmCharts(chn *chnv1.Channel, indexFile *repo.IndexFile,
 	objRefMap map[v1.ObjectReference]*v1.ObjectReference) error {
 	for packageName, chartVersions := range indexFile.Entries {
 		klog.Infof("chart: %s\n%v", packageName, chartVersions)
