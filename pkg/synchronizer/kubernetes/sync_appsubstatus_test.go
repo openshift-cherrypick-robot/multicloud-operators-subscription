@@ -55,8 +55,9 @@ var (
 	}
 )
 
-var _ = Describe("test create/update/delete appsub status for standalone", func() {
-	It("No cluster appsubReport created, only appsubstatus created in appsub NS", func() {
+var _ = Describe("test create/update/delete appsub status for standalone and managed cluster", func() {
+	It("Test appsubReports and appsubstatus on standalone and managed cluster", func() {
+		// Standalone - No cluster appsubReport created, only appsubstatus created in appsub NS
 		appSubUnitStatuses := []SubscriptionUnitStatus{}
 		appSubUnitStatuses = append(appSubUnitStatuses, appSubUnitStatus1)
 		appsubClusterStatus := SubscriptionClusterStatus{
@@ -147,22 +148,19 @@ var _ = Describe("test create/update/delete appsub status for standalone", func(
 
 		// Wait for cleanup to complete
 		time.Sleep(4 * time.Second)
-	})
-})
 
-var _ = Describe("test create/update/delete appsub status for managed cluster", func() {
-	It("Test appsubReports and appsubstatus on a managed cluster", func() {
-		appSubUnitStatuses := []SubscriptionUnitStatus{}
+		// Test appsubReports and appsubstatus on a managed cluster
+		appSubUnitStatuses = []SubscriptionUnitStatus{}
 		appSubUnitStatuses = append(appSubUnitStatuses, appSubUnitStatus1)
 
-		appsubClusterStatus := SubscriptionClusterStatus{
+		appsubClusterStatus = SubscriptionClusterStatus{
 			Cluster:                   "cluster1",
 			AppSub:                    hostSub1,
 			Action:                    "APPLY",
 			SubscriptionPackageStatus: appSubUnitStatuses,
 		}
 
-		s := &KubeSynchronizer{
+		s = &KubeSynchronizer{
 			Interval:               0,
 			localCachedClient:      &cachedClient{},
 			remoteCachedClient:     &cachedClient{},
@@ -179,18 +177,18 @@ var _ = Describe("test create/update/delete appsub status for managed cluster", 
 			SkipAppSubStatusResDel: false,
 		}
 
-		err := s.SyncAppsubClusterStatus(nil, appsubClusterStatus, nil)
+		err = s.SyncAppsubClusterStatus(nil, appsubClusterStatus, nil)
 		Expect(err).NotTo(HaveOccurred())
 
 		time.Sleep(8 * time.Second)
 
 		// Check appsubstatus exiss and no appsub report in appsub NS
-		appsubName := appsubClusterStatus.AppSub.Name
-		pkgstatusNs := appsubClusterStatus.AppSub.Namespace
-		pkgstatusName := appsubName
+		appsubName = appsubClusterStatus.AppSub.Name
+		pkgstatusNs = appsubClusterStatus.AppSub.Namespace
+		pkgstatusName = appsubName
 
-		pkgstatuses := &v1alpha1.SubscriptionStatusList{}
-		listopts := &client.ListOptions{Namespace: pkgstatusNs}
+		pkgstatuses = &v1alpha1.SubscriptionStatusList{}
+		listopts = &client.ListOptions{Namespace: pkgstatusNs}
 		err = k8sClient.List(context.TODO(), pkgstatuses, listopts)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(len(pkgstatuses.Items)).To(gomega.Equal(1))
@@ -204,8 +202,9 @@ var _ = Describe("test create/update/delete appsub status for managed cluster", 
 		Expect(cAppsubReport.Results[0].Result).To(gomega.Equal(appsubReportV1alpha1.SubscriptionResult("deployed")))
 
 		// Update to add a failed subscription unit status
+		appSubUnitStatus2.Phase = string(appSubStatusV1alpha1.PackageDeployFailed)
 		appSubUnitStatuses = append(appSubUnitStatuses, appSubUnitStatus2)
-		updateAppsubClusterStatus := SubscriptionClusterStatus{
+		updateAppsubClusterStatus = SubscriptionClusterStatus{
 			Cluster:                   "cluster1",
 			AppSub:                    hostSub1,
 			Action:                    "APPLY",
@@ -257,7 +256,7 @@ var _ = Describe("test create/update/delete appsub status for managed cluster", 
 		Expect(cAppsubReport.Results[0].Result).To(gomega.Equal(appsubReportV1alpha1.SubscriptionResult("deployed")))
 
 		// Delete
-		rmAppsubClusterStatus := SubscriptionClusterStatus{
+		rmAppsubClusterStatus = SubscriptionClusterStatus{
 			Cluster:                   "cluster1",
 			AppSub:                    hostSub1,
 			Action:                    "DELETE",
