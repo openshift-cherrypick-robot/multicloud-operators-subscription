@@ -420,6 +420,7 @@ func deleteAppsubReportResult(rClient client.Client, appsubNs, appsubName, clust
 
 	// For managed clusters, get cluster appsubReport, for standalone get app appsubReport
 	var appsubReport *v1alpha1.SubscriptionReport
+
 	var err error
 
 	if standalone {

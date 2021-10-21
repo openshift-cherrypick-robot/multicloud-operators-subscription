@@ -233,17 +233,17 @@ func (r *ReconcileSubscription) processRepo(chn *chnv1.Channel, sub *appv1.Subsc
 	errMessage := ""
 	objRefMap := make(map[v1.ObjectReference]*v1.ObjectReference)
 
-	err = r.subscribeResources(crdsAndNamespaceFiles, baseDir, objRefMap)
+	err = r.subscribeResources(crdsAndNamespaceFiles, objRefMap)
 	if err != nil {
 		errMessage += err.Error() + "/n"
 	}
 
-	err = r.subscribeResources(rbacFiles, baseDir, objRefMap)
+	err = r.subscribeResources(rbacFiles, objRefMap)
 	if err != nil {
 		errMessage += err.Error() + "/n"
 	}
 
-	err = r.subscribeResources(otherFiles, baseDir, objRefMap)
+	err = r.subscribeResources(otherFiles, objRefMap)
 	if err != nil {
 		errMessage += err.Error() + "/n"
 	}
@@ -287,7 +287,7 @@ func (r *ReconcileSubscription) processRepo(chn *chnv1.Channel, sub *appv1.Subsc
 }
 
 func (r *ReconcileSubscription) subscribeResources(
-	rscFiles []string, baseDir string, objRefMap map[v1.ObjectReference]*v1.ObjectReference) error {
+	rscFiles []string, objRefMap map[v1.ObjectReference]*v1.ObjectReference) error {
 	// sync kube resource manifests
 	for _, rscFile := range rscFiles {
 		file, err := ioutil.ReadFile(rscFile) // #nosec G304 rscFile is not user input
