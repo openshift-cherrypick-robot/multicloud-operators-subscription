@@ -707,7 +707,6 @@ func (r *ReconcileHelmRelease) populateAppSubStatus(
 			if err != nil {
 				klog.Error("Failed to get capabilities ", helmreleaseNsn(instance), " ", err)
 			} else {
-
 				manifests := releaseutil.SplitManifests(manifest)
 				_, files, err := releaseutil.SortManifests(manifests, caps.APIVersions, releaseutil.InstallOrder)
 				if err != nil {
@@ -716,15 +715,17 @@ func (r *ReconcileHelmRelease) populateAppSubStatus(
 					appSubUnitStatuses := []kubesynchronizer.SubscriptionUnitStatus{}
 
 					for _, file := range files {
-						appSubUnitStatus := kubesynchronizer.SubscriptionUnitStatus{}
-						appSubUnitStatus.APIVersion = file.Head.Version
-						appSubUnitStatus.Kind = file.Head.Kind
-						appSubUnitStatus.Name = file.Head.Metadata.Name
-						appSubUnitStatus.Namespace = instance.Namespace
+						if file.Head != nil && file.Head.Metadata != nil {
+							appSubUnitStatus := kubesynchronizer.SubscriptionUnitStatus{}
+							appSubUnitStatus.APIVersion = file.Head.Version
+							appSubUnitStatus.Kind = file.Head.Kind
+							appSubUnitStatus.Name = file.Head.Metadata.Name
+							appSubUnitStatus.Namespace = instance.Namespace
 
-						appSubUnitStatus.Phase = string(appSubStatusV1alpha1.PackageDeployed)
-						appSubUnitStatus.Message = ""
-						appSubUnitStatuses = append(appSubUnitStatuses, appSubUnitStatus)
+							appSubUnitStatus.Phase = string(appSubStatusV1alpha1.PackageDeployed)
+							appSubUnitStatus.Message = ""
+							appSubUnitStatuses = append(appSubUnitStatuses, appSubUnitStatus)
+						}
 					}
 
 					appsubClusterStatus := kubesynchronizer.SubscriptionClusterStatus{
