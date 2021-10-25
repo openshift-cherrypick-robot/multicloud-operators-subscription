@@ -428,6 +428,8 @@ func TestClusterChange(t *testing.T) {
 
 	g.Eventually(requests, timeout).Should(gomega.Receive(gomega.Equal(expectedRequest)))
 
+	time.Sleep(5 * time.Second)
+
 	result := &appv1alpha1.PlacementRule{}
 	err = c.Get(context.TODO(), prulekey, result)
 	g.Expect(err).NotTo(gomega.HaveOccurred())
@@ -445,7 +447,7 @@ func TestClusterChange(t *testing.T) {
 
 	g.Eventually(requests, timeout).Should(gomega.Receive(gomega.Equal(expectedRequest)))
 
-	time.Sleep(1 * time.Second)
+	time.Sleep(5 * time.Second)
 
 	err = c.Get(context.TODO(), prulekey, result)
 	g.Expect(err).NotTo(gomega.HaveOccurred())
