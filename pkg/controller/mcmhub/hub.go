@@ -21,7 +21,6 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
-	"time"
 
 	gerr "github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
@@ -241,6 +240,7 @@ func (r *ReconcileSubscription) GetChannelGeneration(s *appv1alpha1.Subscription
 
 func (r *ReconcileSubscription) createAppAppsubReport(sub *appv1alpha1.Subscription, resources []*v1.ObjectReference,
 	propagationFailedCount, clusterCount int) error {
+
 	appsubReport := &appsubreportv1alpha1.SubscriptionReport{
 		TypeMeta: metav1.TypeMeta{},
 		ObjectMeta: metav1.ObjectMeta{
@@ -265,20 +265,11 @@ func (r *ReconcileSubscription) createAppAppsubReport(sub *appv1alpha1.Subscript
 	}
 
 	if !appsubReportFound {
-		klog.V(1).Infof("App appsubReport: %v/%v not found, create it.", appsubReport.Namespace, appsubReport.Name)
+		klog.Infof("App appsubReport: %v/%v not found, create it.", appsubReport.Namespace, appsubReport.Name)
 
 		appsubReport.Labels = map[string]string{
 			"apps.open-cluster-management.io/hosting-subscription": fmt.Sprintf("%.63s", sub.Namespace+"."+sub.Name),
 		}
-
-		results := []*appsubreportv1alpha1.SubscriptionReportResult{}
-		result := &appsubreportv1alpha1.SubscriptionReportResult{
-			Source:    sub.Namespace + "/" + sub.Name,
-			Timestamp: metav1.Timestamp{Seconds: time.Now().Unix()},
-			Result:    "deployed",
-		}
-		results = append(results, result)
-		appsubReport.Results = results
 
 		//initialize placementrule cluster count as the pass count
 		appsubReport.Summary.Deployed = 0
@@ -302,6 +293,12 @@ func (r *ReconcileSubscription) createAppAppsubReport(sub *appv1alpha1.Subscript
 		}
 	} else {
 		klog.V(1).Infof("App appsubReport found: %v/%v, update it.", appsubReport.Namespace, appsubReport.Name)
+
+		if resources == nil {
+			klog.V(1).Infof("No resources, skip update")
+
+			return nil
+		}
 
 		// Update resource list
 		resourceList := appsubReport.Resources
