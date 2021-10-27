@@ -1,3 +1,4 @@
+# Copyright Contributors to the Open Cluster Management project
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -6,3 +7,7 @@ rules:
 - apiGroups: [""]
   resources: ["secrets"]
   verbs: ["get", "list", "watch"]
+- apiGroups: ["apps.open-cluster-management.io"]
+  resources: ["subscriptionstatuses", "subscriptionreports"]
+  verbs: ["get", "list", "watch", "create", "patch", "update", "delete"]
+
