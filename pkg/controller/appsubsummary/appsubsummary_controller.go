@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"runtime"
 	"sort"
+	"strconv"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
@@ -287,7 +288,9 @@ func (r *ReconcileAppSubSummary) newAppSubReport(appsubNs, appsubName string,
 		newAppsubReportResults = append(newAppsubReportResults, newAppsubReportResult)
 	}
 
-	inProgressCount := appsubSummary.Clusters - clustersStatus.PropagationFailed - clustersStatus.Deployed - clustersStatus.Failed
+	iClusters, _ := strconv.Atoi(appsubSummary.Clusters)
+
+	inProgressCount := iClusters - clustersStatus.PropagationFailed - clustersStatus.Deployed - clustersStatus.Failed
 	if inProgressCount < 0 {
 		klog.Warningf("inProgress Count < 0, inProgressCount: %v", inProgressCount)
 		inProgressCount = 0
@@ -309,11 +312,11 @@ func (r *ReconcileAppSubSummary) newAppSubReport(appsubNs, appsubName string,
 		Resources:  appsubResourceList,
 		Results:    newAppsubReportResults,
 		Summary: appsubReportV1alpha1.SubscriptionReportSummary{
-			Deployed:          clustersStatus.Deployed,
-			Failed:            clustersStatus.Failed,
-			PropagationFailed: clustersStatus.PropagationFailed,
+			Deployed:          strconv.Itoa(clustersStatus.Deployed),
+			Failed:            strconv.Itoa(clustersStatus.Failed),
+			PropagationFailed: strconv.Itoa(clustersStatus.PropagationFailed),
 			Clusters:          appsubSummary.Clusters,
-			InProgress:        inProgressCount,
+			InProgress:        strconv.Itoa(inProgressCount),
 		},
 	}
 

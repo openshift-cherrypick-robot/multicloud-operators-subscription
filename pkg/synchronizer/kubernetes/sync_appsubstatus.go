@@ -485,6 +485,13 @@ func getClusterAppsubReport(rClient client.Client, clusterAppsubReportNs string,
 				appsubReport.Labels = labels
 				appsubReport.ReportType = "Cluster"
 
+				// Set summary stats to "n/a"
+				appsubReport.Summary.Clusters = "n/a"
+				appsubReport.Summary.Deployed = "n/a"
+				appsubReport.Summary.InProgress = "n/a"
+				appsubReport.Summary.Failed = "n/a"
+				appsubReport.Summary.PropagationFailed = "n/a"
+
 				if err := rClient.Create(context.TODO(), appsubReport); err != nil {
 					klog.Errorf("Error in creating on hub, appsubReport:%v/%v, err:%v", appsubReport.Namespace, appsubReport.Name, err)
 					return appsubReport, err

@@ -272,15 +272,15 @@ func (r *ReconcileSubscription) createAppAppsubReport(sub *appv1alpha1.Subscript
 		}
 
 		//initialize placementrule cluster count as the pass count
-		appsubReport.Summary.Deployed = 0
-		appsubReport.Summary.Failed = 0
-		appsubReport.Summary.PropagationFailed = propagationFailedCount
-		appsubReport.Summary.Clusters = clusterCount
+		appsubReport.Summary.Deployed = "0"
+		appsubReport.Summary.Failed = "0"
+		appsubReport.Summary.PropagationFailed = strconv.Itoa(propagationFailedCount)
+		appsubReport.Summary.Clusters = strconv.Itoa(clusterCount)
 
 		if propagationFailedCount > 0 {
-			appsubReport.Summary.InProgress = 0
+			appsubReport.Summary.InProgress = "0"
 		} else {
-			appsubReport.Summary.InProgress = clusterCount
+			appsubReport.Summary.InProgress = strconv.Itoa(clusterCount)
 		}
 
 		appsubReport.SetOwnerReferences([]metav1.OwnerReference{
@@ -312,13 +312,13 @@ func (r *ReconcileSubscription) createAppAppsubReport(sub *appv1alpha1.Subscript
 
 		//reset placementrule cluster count as the pass count
 		if propagationFailedCount > 0 {
-			appsubReport.Summary.InProgress = 0
+			appsubReport.Summary.InProgress = "0"
 		} else {
-			appsubReport.Summary.InProgress = clusterCount
+			appsubReport.Summary.InProgress = strconv.Itoa(clusterCount)
 		}
 
-		appsubReport.Summary.PropagationFailed = propagationFailedCount
-		appsubReport.Summary.Clusters = clusterCount
+		appsubReport.Summary.PropagationFailed = strconv.Itoa(propagationFailedCount)
+		appsubReport.Summary.Clusters = strconv.Itoa(clusterCount)
 
 		if err := r.Update(context.TODO(), appsubReport); err != nil {
 			klog.Errorf("Error in updating app AppsubReport:%v/%v, err:%v", appsubReport.Namespace, appsubReport.Name, err)

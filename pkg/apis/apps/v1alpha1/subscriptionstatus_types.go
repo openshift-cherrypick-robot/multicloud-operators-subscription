@@ -74,23 +74,23 @@ type SubscriptionReportSummary struct {
 
 	// Deployed provides the count of subscriptions that deployed successfully
 	// +optional
-	Deployed int `json:"deployed"`
+	Deployed string `json:"deployed"`
 
 	// InProgress provides the count of subscriptions that are in the process of being deployed
 	// +optional
-	InProgress int `json:"inProgress"`
+	InProgress string `json:"inProgress"`
 
 	// Failed provides the count of subscriptions that failed to deploy
 	// +optional
-	Failed int `json:"failed"`
+	Failed string `json:"failed"`
 
 	// PropagationFailed provides the count of subscriptions that failed to propagate to a managed cluster
 	// +optional
-	PropagationFailed int `json:"propagationFailed"`
+	PropagationFailed string `json:"propagationFailed"`
 
 	// Clusters provides the count of all managed clusters the subscription is deployed to
 	// +optional
-	Clusters int `json:"clusters"`
+	Clusters string `json:"clusters"`
 }
 
 // SubscriptionResult has one of the following values:
@@ -127,11 +127,12 @@ type SubscriptionReportType string
 // +kubebuilder:object:root=true
 // +kubebuilder:printcolumn:name="Kind",type=string,JSONPath=`.scope.kind`,priority=1
 // +kubebuilder:printcolumn:name="Name",type=string,JSONPath=`.scope.name`,priority=1
-// +kubebuilder:printcolumn:name="Deployed",type=integer,JSONPath=`.summary.deployed`
-// +kubebuilder:printcolumn:name="InProgress",type=integer,JSONPath=`.summary.inProgress`
-// +kubebuilder:printcolumn:name="Failed",type=integer,JSONPath=`.summary.failed`
-// +kubebuilder:printcolumn:name="PropagationFailed",type=integer,JSONPath=`.summary.propagationFailed`
-// +kubebuilder:printcolumn:name="Clusters",type=integer,JSONPath=`.summary.clusters`
+// +kubebuilder:printcolumn:name="ReportType",type=string,JSONPath=`.reportType`,priority=1
+// +kubebuilder:printcolumn:name="Deployed",type=string,JSONPath=`.summary.deployed`
+// +kubebuilder:printcolumn:name="InProgress",type=string,JSONPath=`.summary.inProgress`
+// +kubebuilder:printcolumn:name="Failed",type=string,JSONPath=`.summary.failed`
+// +kubebuilder:printcolumn:name="PropagationFailed",type=string,JSONPath=`.summary.propagationFailed`
+// +kubebuilder:printcolumn:name="Clusters",type=string,JSONPath=`.summary.clusters`
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 // +kubebuilder:resource:shortName=appsubreport
 
