@@ -34,8 +34,8 @@ resources:
   namespace: playback-ns-2
 results:
 summary:
-  deployed: 0
-  failed: 0
-  inProgress: 0
-  propagationFailed: 0
-  clusters: <CLUSTER-TOTAL>
+  deployed: "0"
+  failed: "0"
+  inProgress: "0"
+  propagationFailed: "0"
+  clusters: "<CLUSTER-TOTAL>"
