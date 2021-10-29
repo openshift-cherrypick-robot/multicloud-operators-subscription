@@ -125,9 +125,7 @@ type SubscriptionReportType string
 // +genclient
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 // +kubebuilder:object:root=true
-// +kubebuilder:printcolumn:name="Kind",type=string,JSONPath=`.scope.kind`,priority=1
-// +kubebuilder:printcolumn:name="Name",type=string,JSONPath=`.scope.name`,priority=1
-// +kubebuilder:printcolumn:name="ReportType",type=string,JSONPath=`.reportType`,priority=1
+// +kubebuilder:printcolumn:name="ReportType",type=string,JSONPath=`.reportType`
 // +kubebuilder:printcolumn:name="Deployed",type=string,JSONPath=`.summary.deployed`
 // +kubebuilder:printcolumn:name="InProgress",type=string,JSONPath=`.summary.inProgress`
 // +kubebuilder:printcolumn:name="Failed",type=string,JSONPath=`.summary.failed`
