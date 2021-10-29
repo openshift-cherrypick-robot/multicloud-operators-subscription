@@ -173,10 +173,6 @@ func (sync *KubeSynchronizer) SyncAppsubClusterStatus(appsub *appv1.Subscription
 
 			// If all packages are removed - delete appsubstatus
 			if len(newUnitStatus) == 0 {
-				if isLocalCluster {
-					pkgstatus.Namespace = appsubClusterStatus.Cluster
-				}
-
 				klog.V(1).Infof("Delete appsubstatus:%v/%v", pkgstatus.Namespace, pkgstatus.Name)
 				if err := sync.LocalClient.Delete(context.TODO(), pkgstatus); err != nil {
 					klog.Errorf("Error delete appsubstatus:%v/%v, err:%v", pkgstatus.Namespace, pkgstatus.Name, err)
@@ -257,10 +253,6 @@ func (sync *KubeSynchronizer) SyncAppsubClusterStatus(appsub *appv1.Subscription
 
 		if appsub != nil {
 			sync.recordAppSubStatusEvents(appsub, "Delete", newUnitStatus)
-		}
-
-		if isLocalCluster {
-			pkgstatus.Namespace = appsubClusterStatus.Cluster
 		}
 
 		if len(failedUnitStatuses) == 0 {
