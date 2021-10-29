@@ -271,13 +271,12 @@ func (sync *KubeSynchronizer) SyncAppsubClusterStatus(appsub *appv1.Subscription
 					klog.Errorf("Error delete from managed cluster, appsubstatus:%v/%v, err:%v", pkgstatus.Namespace, pkgstatus.Name, err)
 					return err
 				}
+			}
+			klog.V(1).Infof("Delete result from cluster AppsubReport:%v/%v", pkgstatus.Namespace, pkgstatus.Name)
 
-				klog.V(1).Infof("Delete result from cluster AppsubReport:%v/%v", pkgstatus.Namespace, pkgstatus.Name)
-
-				if err := deleteAppsubReportResult(sync.RemoteClient, appsubClusterStatus.AppSub.Namespace,
-					appsubName, appsubClusterStatus.Cluster, sync.standalone); err != nil {
-					return err
-				}
+			if err := deleteAppsubReportResult(sync.RemoteClient, appsubClusterStatus.AppSub.Namespace,
+				appsubName, appsubClusterStatus.Cluster, sync.standalone); err != nil {
+				return err
 			}
 		} else {
 			klog.V(2).Infof("%v subscription resources failed to delete", len(failedUnitStatuses))

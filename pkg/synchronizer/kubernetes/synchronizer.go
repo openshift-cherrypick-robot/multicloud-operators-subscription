@@ -130,19 +130,35 @@ func (sync *KubeSynchronizer) PurgeAllSubscribedResources(appsub *appv1alpha1.Su
 	}
 
 	appSubStatusKey := types.NamespacedName{
-		Name:      hostSub.Namespace + "." + appsubStatusName,
+		Name:      appsubStatusName,
 		Namespace: appsubStatusNs,
 	}
 
-	if err := sync.LocalClient.Get(context.TODO(), appSubStatusKey, appSubStatus); err != nil {
+	appSubUnitStatuses := []SubscriptionUnitStatus{}
+
+	err := sync.LocalClient.Get(context.TODO(), appSubStatusKey, appSubStatus)
+	if err != nil {
 		if errors.IsNotFound(err) {
 			klog.Infof("appSubStatus not found, %s/%s", appSubStatusKey.Namespace, appSubStatusKey.Name)
 
+			appsubClusterStatus := SubscriptionClusterStatus{
+				Cluster:                   sync.SynchronizerID.Name,
+				AppSub:                    hostSub,
+				Action:                    "DELETE",
+				SubscriptionPackageStatus: appSubUnitStatuses,
+			}
+
+			err := sync.SyncAppsubClusterStatus(appsub, appsubClusterStatus, nil)
+			if err != nil {
+				klog.Warning("error while sync app sub cluster status: ", err)
+			}
+
 			return nil
 		}
-	}
 
-	appSubUnitStatuses := []SubscriptionUnitStatus{}
+		klog.Infof("failed to get appSubStatus, appsubstatus: %s/%s, err: %v", appSubStatusKey.Namespace, appSubStatusKey.Name, err)
+		return nil
+	}
 
 	if sync.SkipAppSubStatusResDel {
 		klog.Info("SkipAppSubStatusResDel enabled for ", hostSub.Namespace, "/", hostSub.Name)
@@ -176,7 +192,7 @@ func (sync *KubeSynchronizer) PurgeAllSubscribedResources(appsub *appv1alpha1.Su
 		SubscriptionPackageStatus: appSubUnitStatuses,
 	}
 
-	err := sync.SyncAppsubClusterStatus(appsub, appsubClusterStatus, nil)
+	err = sync.SyncAppsubClusterStatus(appsub, appsubClusterStatus, nil)
 	if err != nil {
 		klog.Warning("error while sync app sub cluster status: ", err)
 	}
