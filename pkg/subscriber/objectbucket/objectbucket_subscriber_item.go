@@ -465,7 +465,7 @@ func (obsi *SubscriberItem) doSubscribeManifest(template *unstructured.Unstructu
 	}
 
 	template.SetOwnerReferences([]metav1.OwnerReference{{
-		APIVersion: SubscriptionGVK.Version,
+		APIVersion: SubscriptionGVK.GroupVersion().String(),
 		Kind:       SubscriptionGVK.Kind,
 		Name:       obsi.Subscription.Name,
 		UID:        obsi.Subscription.UID,
