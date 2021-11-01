@@ -23,6 +23,7 @@ import (
 	metaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	appv1 "open-cluster-management.io/multicloud-operators-subscription/pkg/apis/apps/v1"
+	v1 "open-cluster-management.io/multicloud-operators-subscription/pkg/apis/apps/v1"
 	v1alpha1 "open-cluster-management.io/multicloud-operators-subscription/pkg/apis/apps/v1alpha1"
 	"open-cluster-management.io/multicloud-operators-subscription/pkg/utils"
 )
@@ -73,7 +74,6 @@ func (sync *KubeSynchronizer) SyncAppsubClusterStatus(appsub *appv1.Subscription
 	if isLocalCluster {
 		if strings.HasSuffix(appsubName, "-local") {
 			appsubName = appsubName[:len(appsubName)-6]
-			pkgstatusName = appsubName
 		}
 	}
 
@@ -91,6 +91,20 @@ func (sync *KubeSynchronizer) SyncAppsubClusterStatus(appsub *appv1.Subscription
 	}
 
 	if appsubClusterStatus.Action == "APPLY" {
+		// Skip helmrelease on local-cluster
+		if isLocalCluster && len(appsubClusterStatus.SubscriptionPackageStatus) == 1 &&
+			appsubClusterStatus.SubscriptionPackageStatus[0].Kind == "HelmRelease" {
+			klog.V(1).Infof("Skip create appsubstatus(%v/%v) for HelmRelease", pkgstatus.Namespace, pkgstatus.Name)
+
+			// Create cluster report so the helm release controller on the standalone could update it
+			_, err := getClusterAppsubReport(sync.RemoteClient, appsubClusterStatus.Cluster, true)
+			if err != nil {
+				return err
+			}
+
+			return nil
+		}
+
 		newUnitStatus := []v1alpha1.SubscriptionUnitStatus{}
 
 		for _, resource := range appsubClusterStatus.SubscriptionPackageStatus {
@@ -353,8 +367,27 @@ func updateAppsubReportResult(rClient client.Client, appsubNs, appsubName, clust
 	var err error
 
 	if standalone {
-		klog.Infof("Standalone appsub, skip create/update of policy report")
-		return nil
+		// Check if a hosting-subscription exists
+		appsub := &v1.Subscription{}
+
+		if err := rClient.Get(context.TODO(),
+			client.ObjectKey{Name: appsubName, Namespace: appsubNs}, appsub); err != nil {
+			klog.Errorf("failed to appsub to check host-subscription for deployment from standalone controller, err: %v", err)
+			return err
+		}
+
+		annotations := appsub.GetAnnotations()
+		if annotations == nil || annotations["apps.open-cluster-management.io/hosting-subscription"] == "" {
+			klog.V(1).Infof("Standalone appsub, skip create/update of entry in cluter report")
+			return nil
+		}
+
+		if strings.HasSuffix(appsubName, "-local") {
+			appsubName = appsubName[:len(appsubName)-6]
+		}
+
+		clusterAppsubReportNs = "local-cluster"
+		klog.V(1).Infof("Standalone appsub for helm, continue")
 	}
 
 	appsubReport, err = getClusterAppsubReport(rClient, clusterAppsubReportNs, true)
@@ -416,9 +449,27 @@ func deleteAppsubReportResult(rClient client.Client, appsubNs, appsubName, clust
 	var err error
 
 	if standalone {
-		klog.V(2).Infof("Standalone appsub, skip deletion of cluster appsubReport")
+		// Check if a hosting-subscription exists
+		appsub := &v1.Subscription{}
 
-		return nil
+		if err := rClient.Get(context.TODO(),
+			client.ObjectKey{Name: appsubName, Namespace: appsubNs}, appsub); err != nil {
+			klog.Errorf("failed to appsub to check host-subscription for deployment from standalone controller, err: %v", err)
+			return err
+		}
+
+		annotations := appsub.GetAnnotations()
+		if annotations == nil || annotations["apps.open-cluster-management.io/hosting-subscription"] == "" {
+			klog.V(1).Infof("Standalone appsub, skip delete entry from cluster report")
+			return nil
+		}
+
+		if strings.HasSuffix(appsubName, "-local") {
+			appsubName = appsubName[:len(appsubName)-6]
+		}
+
+		clusterAppsubReportNs = "local-cluster"
+		klog.V(1).Infof("Standalone appsub for helm, continue")
 	}
 
 	appsubReport, err = getClusterAppsubReport(rClient, clusterAppsubReportNs, false)
