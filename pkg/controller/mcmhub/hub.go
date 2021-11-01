@@ -240,7 +240,6 @@ func (r *ReconcileSubscription) GetChannelGeneration(s *appv1alpha1.Subscription
 
 func (r *ReconcileSubscription) createAppAppsubReport(sub *appv1alpha1.Subscription, resources []*v1.ObjectReference,
 	propagationFailedCount, clusterCount int) error {
-
 	appsubReport := &appsubreportv1alpha1.SubscriptionReport{
 		TypeMeta: metav1.TypeMeta{},
 		ObjectMeta: metav1.ObjectMeta{

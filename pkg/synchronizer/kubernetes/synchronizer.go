@@ -157,6 +157,7 @@ func (sync *KubeSynchronizer) PurgeAllSubscribedResources(appsub *appv1alpha1.Su
 		}
 
 		klog.Infof("failed to get appSubStatus, appsubstatus: %s/%s, err: %v", appSubStatusKey.Namespace, appSubStatusKey.Name, err)
+
 		return nil
 	}
 

@@ -264,6 +264,7 @@ func (sync *KubeSynchronizer) SyncAppsubClusterStatus(appsub *appv1.Subscription
 					return err
 				}
 			}
+
 			klog.V(1).Infof("Delete result from cluster AppsubReport:%v/%v", pkgstatus.Namespace, pkgstatus.Name)
 
 			if err := deleteAppsubReportResult(sync.RemoteClient, appsubClusterStatus.AppSub.Namespace,
