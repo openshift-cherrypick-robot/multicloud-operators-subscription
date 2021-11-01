@@ -113,7 +113,7 @@ func TestReconcile(t *testing.T) {
 	err = c.Create(context.TODO(), instance)
 	g.Expect(err).NotTo(gomega.HaveOccurred())
 
-	time.Sleep(4 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	instanceResp := &appv1.HelmRelease{}
 	err = c.Get(context.TODO(), helmReleaseKey, instanceResp)

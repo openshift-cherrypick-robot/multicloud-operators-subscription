@@ -85,7 +85,7 @@ echo -e "\nSwitch kubeconfig to kind cluster\n"
 kubectl cluster-info --context kind-kind
 
 echo -e "\nApply releated CRDs\n"
-kubectl apply -f deploy/hub-common
+kubectl apply -f deploy/common
 
 echo -e "\nApplying channel operator to kind cluster\n"
 kubectl apply -f deploy/standalone
