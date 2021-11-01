@@ -387,6 +387,7 @@ func updateAppsubReportResult(rClient client.Client, appsubNs, appsubName, clust
 		}
 
 		clusterAppsubReportNs = "local-cluster"
+
 		klog.V(1).Infof("Standalone appsub for helm, continue")
 	}
 
@@ -464,11 +465,8 @@ func deleteAppsubReportResult(rClient client.Client, appsubNs, appsubName, clust
 			return nil
 		}
 
-		if strings.HasSuffix(appsubName, "-local") {
-			appsubName = appsubName[:len(appsubName)-6]
-		}
-
 		clusterAppsubReportNs = "local-cluster"
+
 		klog.V(1).Infof("Standalone appsub for helm, continue")
 	}
 
