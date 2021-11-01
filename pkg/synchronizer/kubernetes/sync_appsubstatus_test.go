@@ -23,10 +23,12 @@ import (
 	"github.com/onsi/gomega"
 	. "github.com/onsi/gomega"
 	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	appv1 "open-cluster-management.io/multicloud-operators-subscription/pkg/apis/apps/v1"
 	appSubStatusV1alpha1 "open-cluster-management.io/multicloud-operators-subscription/pkg/apis/apps/v1alpha1"
-	appsubReportV1alpha1 "open-cluster-management.io/multicloud-operators-subscription/pkg/apis/apps/v1alpha1"
 	v1alpha1 "open-cluster-management.io/multicloud-operators-subscription/pkg/apis/apps/v1alpha1"
+
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -34,6 +36,13 @@ var (
 	hostSub1 = types.NamespacedName{
 		Name:      "appsub-1",
 		Namespace: "default",
+	}
+
+	githubsub = &appv1.Subscription{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      hostSub1.Name,
+			Namespace: hostSub1.Namespace,
+		},
 	}
 
 	appSubUnitStatus1 = SubscriptionUnitStatus{
@@ -57,6 +66,12 @@ var (
 
 var _ = Describe("test create/update/delete appsub status for standalone and managed cluster", func() {
 	It("Test appsubReports and appsubstatus on standalone and managed cluster", func() {
+		//Create apsub
+		err := k8sClient.Create(context.TODO(), githubsub)
+		Expect(err).NotTo(HaveOccurred())
+
+		time.Sleep(8 * time.Second)
+
 		// Standalone - No cluster appsubReport created, only appsubstatus created in appsub NS
 		appSubUnitStatuses := []SubscriptionUnitStatus{}
 		appSubUnitStatuses = append(appSubUnitStatuses, appSubUnitStatus1)
@@ -84,7 +99,7 @@ var _ = Describe("test create/update/delete appsub status for standalone and man
 			SkipAppSubStatusResDel: false,
 		}
 
-		err := s.SyncAppsubClusterStatus(nil, appsubClusterStatus, nil)
+		err = s.SyncAppsubClusterStatus(nil, appsubClusterStatus, nil)
 		Expect(err).NotTo(HaveOccurred())
 
 		time.Sleep(8 * time.Second)
@@ -195,11 +210,11 @@ var _ = Describe("test create/update/delete appsub status for standalone and man
 		Expect(pkgstatuses.Items[0].Name).To(gomega.Equal(pkgstatusName))
 
 		// Cluster appsub report is created with a deployed result
-		cAppsubReport := &appsubReportV1alpha1.SubscriptionReport{}
+		cAppsubReport := &appSubStatusV1alpha1.SubscriptionReport{}
 		err = k8sClient.Get(context.TODO(), client.ObjectKey{Name: appsubClusterStatus.Cluster, Namespace: appsubClusterStatus.Cluster}, cAppsubReport)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(len(cAppsubReport.Results)).To(gomega.Equal(1))
-		Expect(cAppsubReport.Results[0].Result).To(gomega.Equal(appsubReportV1alpha1.SubscriptionResult("deployed")))
+		Expect(cAppsubReport.Results[0].Result).To(gomega.Equal(appSubStatusV1alpha1.SubscriptionResult("deployed")))
 
 		// Update to add a failed subscription unit status
 		appSubUnitStatus2.Phase = string(appSubStatusV1alpha1.PackageDeployFailed)
@@ -225,7 +240,7 @@ var _ = Describe("test create/update/delete appsub status for standalone and man
 		err = k8sClient.Get(context.TODO(), client.ObjectKey{Name: appsubClusterStatus.Cluster, Namespace: appsubClusterStatus.Cluster}, cAppsubReport)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(len(cAppsubReport.Results)).To(gomega.Equal(1))
-		Expect(cAppsubReport.Results[0].Result).To(gomega.Equal(appsubReportV1alpha1.SubscriptionResult("failed")))
+		Expect(cAppsubReport.Results[0].Result).To(gomega.Equal(appSubStatusV1alpha1.SubscriptionResult("failed")))
 
 		// Update to change phase of failed subscription unit status to deployed
 		appSubUnitStatus2.Phase = string(appSubStatusV1alpha1.PackageDeployed)
@@ -253,7 +268,7 @@ var _ = Describe("test create/update/delete appsub status for standalone and man
 		err = k8sClient.Get(context.TODO(), client.ObjectKey{Name: appsubClusterStatus.Cluster, Namespace: appsubClusterStatus.Cluster}, cAppsubReport)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(len(cAppsubReport.Results)).To(gomega.Equal(1))
-		Expect(cAppsubReport.Results[0].Result).To(gomega.Equal(appsubReportV1alpha1.SubscriptionResult("deployed")))
+		Expect(cAppsubReport.Results[0].Result).To(gomega.Equal(appSubStatusV1alpha1.SubscriptionResult("deployed")))
 
 		// Delete
 		rmAppsubClusterStatus = SubscriptionClusterStatus{
